@@ -32,7 +32,7 @@ In simple words this means the following. Each significant part of data is repre
 }
 ```
 In this example JSON document defines entity with unique identifier "my_grandmother" that inherit root entity with ID "entity". On this diagram this "is" relation is shown by black arrow with triangle.
-![][doc_images\my_mother-1.png]
+![][docs\my_mother-1.png]
 
 Root entity "entity" is using by default, so you can rewrite previous JSON code to create the same grandmother entity:
 
@@ -61,7 +61,7 @@ Each entity in network connected to other entities via properties and inherit re
 }
 ```
 This diagram shows relations and properties between entities:
-![][doc_images\my_mother-2.png]
+![][https://github.com/Yolziii/EntityNetwork.js/tree/master/docs/my_mother-2.png]
 
 ### Relation "is"
 

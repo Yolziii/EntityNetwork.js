@@ -5,3 +5,5 @@ test/
 build/
 *.swp
 .DS_Store
+*.bat
+web_deploy/

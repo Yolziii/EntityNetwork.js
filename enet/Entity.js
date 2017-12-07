@@ -14,6 +14,8 @@ const CoreId = {
     SINGLE_LINE: 'single_line',
 
     MULTIPLE_VALUE: 'multiple_value',
+
+    REGEXP: 'regexp'
 };
 
 
@@ -31,7 +33,7 @@ Entity.prototype.is = function(parentEntityId) {
     var me = this;
     while (true) {
         if (me.parentId === parent.id || me.id === parent.id) return true;
-        if (me.parentId === undefined) return false;
+        if (me.parentId === null) return false;
         me = Entity._entities[me.parentId];
     }
 };
@@ -45,7 +47,7 @@ Entity.prototype.isFor = function(childEntityId) {
     var me = this;
     while (true) {
         if (me.id === child.parentId) return true;
-        if (child.parentId === undefined) return false;
+        if (child.parentId === null) return false;
         child =  Entity._entities[child.parentId];
     }
 };
@@ -151,7 +153,7 @@ Entity.clear = function() {
 
 Entity.contains = function(entityId) {
     return Entity._entities[entityId] !== undefined;
-}
+};
 
 Entity._initValues = function() {
     Entity.defineImplementationForEntity(CoreId.INT, {
@@ -191,6 +193,10 @@ Entity._initValues = function() {
             if (property[CoreId.SINGLE_LINE] !== undefined && property[CoreId.SINGLE_LINE] && value.indexOf('\n') != -1) {
                 throw new TypeError('String value for "' + property.id + '" must be single line but was "' + value + '"');
             }
+
+            if (property[CoreId.REGEXP] !== undefined && !value.match(new RegExp(property[CoreId.REGEXP]))) {
+                throw new TypeError('String value "' + value + '" for "' + property.id + '" doesn\'t match to regexp "'+property[CoreId.REGEXP]+'"');
+            }
         }
     });
 
@@ -202,8 +208,16 @@ Entity._initValues = function() {
         }
     });
 
+    Entity.defineImplementationForEntity(CoreId.REGEXP, {
+        checkValue: function(property, entity, value) {
+            if (!entity.is(CoreId.STRING)) {
+                throw new TypeError('Regexp can be applied to string properties only but property is "' + property.id + '"');
+            }
+        }
+    });
+
     // TODO: Load from core.json
-    var entity = Entity.create(CoreId.ENTITY);
+    var entity = Entity.create(CoreId.ENTITY, null);
     var dataType = Entity.create(CoreId.DATA_TYPE, entity);
     Entity.create(CoreId.BOOLEAN, dataType);
     Entity.create(CoreId.INT, dataType);
@@ -214,8 +228,12 @@ Entity._initValues = function() {
     Entity.create(CoreId.MIN_VALUE, CoreId.INT);
     Entity.create(CoreId.MAX_LENGTH, CoreId.INT);
     Entity.create(CoreId.MIN_LENGTH, CoreId.INT);
+
     Entity.create(CoreId.SINGLE_LINE, CoreId.BOOLEAN);
     Entity.create(CoreId.MULTIPLE_VALUE, CoreId.BOOLEAN);
+
+    var regexp = Entity.create(CoreId.REGEXP, CoreId.STRING);
+    regexp.setValue(CoreId.SINGLE_LINE, true);
 };
 
 Entity.get = function(entityId) {
@@ -234,16 +252,17 @@ Entity.get = function(entityId) {
  */
 Entity.create = function(newEntityId, parentEntityId) {
     newEntityId = Entity._getPropertyId(newEntityId);
+    if (parentEntityId === undefined) parentEntityId = null;
     parentEntityId = Entity._getPropertyId(parentEntityId);
 
-    if (parentEntityId !== undefined && Entity._entities[parentEntityId] === undefined) {
+    if (parentEntityId !== null && Entity._entities[parentEntityId] === undefined) {
         Entity.create(parentEntityId);
     }
 
     if (Entity._entities[newEntityId] === undefined) {
         var entity;
 
-        if (parentEntityId === undefined) {
+        if (parentEntityId === null) {
             entity = new Entity(newEntityId, parentEntityId);
         } else {
             entity = Object.create(Entity._entities[parentEntityId]);
@@ -314,6 +333,7 @@ Entity._checkValue = function(entity, propertyId, value) {
 };
 
 Entity._getPropertyId = function(property) {
+    if (property === null) return property;
     if (typeof property === 'string' || property instanceof String) {
         return property;
     } else if (typeof property === 'object' || property instanceof Object) {
@@ -324,7 +344,8 @@ Entity._getPropertyId = function(property) {
 
 Entity._initValues();
 
-// Share Entity to Node.js
+// #Node.js
 try {
     module.exports = {Entity: Entity, CoreId:CoreId};
 } catch(e) {}
+// Node.js#

@@ -1,8 +1,13 @@
+// #Node.js
 try {
     var entityModule = require('./Entity.js');
     var Entity = entityModule.Entity;
     var CoreId = entityModule.CoreId;
+
+    module.exports = { EntityLoader: EntityLoader };
 } catch(e) {}
+
+// Node.js#
 
 function EntityLoader() {
 }
@@ -81,7 +86,3 @@ EntityLoader._proceedProperties = function(entity, entityObject) {
         EntityLoader._proceedValue(entity, propertyId, value, false);
     }
 };
-
-try {
-    module.exports = { EntityLoader: EntityLoader };
-} catch(e) {}

@@ -1,9 +1,13 @@
-var chai = require('chai');
-var entityModule = require('../enet/Entity.js');
-var Entity = entityModule.Entity;
-var CoreId = entityModule.CoreId;
+// #Node.js
+try {
+    var chai = require('chai');
+    var entityModule = require('../enet/Entity.js');
+    var Entity = entityModule.Entity;
+    var CoreId = entityModule.CoreId;
 
-var assert = chai.assert;
+    var assert = chai.assert;
+} catch(e) {}
+// Node.js#
 
 describe('Entity network', function() {
     beforeEach(function() {
@@ -666,6 +670,29 @@ describe('Entity network', function() {
                 } catch (e) {
                     assert.isTrue(e instanceof TypeError);
                 }
+            });
+
+            it('Regular expression mismatch', function () {
+                var email = Entity.create('email', CoreId.STRING);
+                email.setValue(CoreId.REGEXP, '\\S+@\\S+\\.\\S+');
+
+                var person = Entity.create('person');
+                try {
+                    person.setValue(email, "not email");
+                    assert.isTrue(false);
+                } catch (e) {
+                    assert.isTrue(e instanceof TypeError);
+                }
+            });
+
+            it('Regular expression match', function () {
+                var email = Entity.create('email', CoreId.STRING);
+                email.setValue(CoreId.REGEXP, '\\S+@\\S+\\.\\S+');
+
+                var person = Entity.create('person');
+                person.setValue(email, "name@domain.com");
+
+                assert.equal("name@domain.com", person.email);
             });
 
             it('Not multiple value', function () {

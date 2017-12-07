@@ -1,13 +1,19 @@
-var chai = require('chai');
-var fs = require('fs');
-var EntityLoader = require('../enet/EntityLoader.js').EntityLoader;
-var entityModule = require('../enet/Entity.js');
-var Entity = entityModule.Entity;
-var CoreId = entityModule.CoreId;
+// #Node.js
+try {
+    var chai = require('chai');
+    var fs = require('fs');
+    var EntityLoader = require('../enet/EntityLoader.js').EntityLoader;
+    var entityModule = require('../enet/Entity.js');
+    var Entity = entityModule.Entity;
+    var CoreId = entityModule.CoreId;
 
-var assert = chai.assert;
+    var test_EntityLoader = fs.readFileSync('./test/test.EntityLoader.json', 'utf8');
+    var dataObject = JSON.parse(test_EntityLoader);
 
-// TODO: Run all tests from text.html
+    var assert = chai.assert;
+} catch(e) {}
+// Node.js#
+
 
 const CardId = {
     CARD: 'card',
@@ -28,7 +34,6 @@ const CardId = {
 describe('Entity network', function() {
     before(function() {
         Entity.clear();
-        var dataObject = JSON.parse(fs.readFileSync('./test/test.EntityLoader.json', 'utf8'));
         EntityLoader.proceedDocumentObject(dataObject);
     });
 

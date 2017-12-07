@@ -1,0 +1,7 @@
+.git*
+.idea*
+docs/
+test/
+build/
+*.swp
+.DS_Store

@@ -1,0 +1,17 @@
+{
+  "entity": { "is": null },
+  "data_type": {},
+
+  "bool": {"is": "data_type"},
+  "int": {"is": "data_type"},
+  "float": {"is": "data_type"},
+  "string": {"is": "data_type"},
+
+  "min_value" : {"is": "int"},
+  "max_value" : {"is": "int"},
+  "min_length" : {"is": "int"},
+  "max_length" : {"is": "int"},
+
+  "single_line" : {"is": "bool"},
+  "single_value" : {"is": "bool"}
+}

@@ -1,0 +1,27 @@
+{
+  "name": "EntityNetwork.js",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Yolxiii",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-depend": "^1.1.0",
+    "gulp-mocha": "^4.3.1",
+    "gulp-replace": "^0.6.1",
+    "gulp-zip": "^4.0.0",
+    "mocha": "^4.0.1",
+    "nyc": "^11.3.0"
+  },
+  "dependencies": {
+    "merge-stream": "^1.0.1"
+  },
+  "description": ""
+}

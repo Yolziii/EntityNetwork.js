@@ -56,13 +56,13 @@ Entity.prototype.isFor = function(childEntityId) {
 
 Entity.prototype.setValue = function(property, value) {
     property = Entity._getPropertyId(property);
-    Entity._checkValue(this, property, value);
+    value = Entity._checkValue(this, property, value);
     this[property] = value;
 };
 
 Entity.prototype.addValue = function(property, value) {
     propertyId = Entity._getPropertyId(property);
-    Entity._checkValue(this, propertyId, value);
+    value = Entity._checkValue(this, propertyId, value);
 
     property = Entity.get(propertyId);
     if (!property.hasProperty(CoreId.MULTIPLE_VALUE) || !property[CoreId.MULTIPLE_VALUE]) {
@@ -325,7 +325,7 @@ Entity._checkValue = function(entity, propertyId, value) {
             throw new TypeError('Value for "' + propertyId + '" must be string but was ' + value);
         }
     } else {
-        var valueEntity =  Entity.get(value);
+        var valueEntity = Entity.get(value);
         if (!valueEntity.is(property)) {
             if (!property.hasProperty(CoreId.C_COMMANDED) || !property[CoreId.C_COMMANDED] || !valueEntity.is(property.parentId)) {
                 throw new TypeError('Value for "' + propertyId + '" must be string but was ' + valueEntity.id);
@@ -336,6 +336,12 @@ Entity._checkValue = function(entity, propertyId, value) {
     if (property.checkValue !== undefined) {
         property.checkValue(property, entity, value);
     }
+
+    if (property.changeValue !== undefined) {
+        value = property.changeValue(property, entity, value);
+    }
+
+    return value;
 };
 
 Entity._getPropertyId = function(property) {

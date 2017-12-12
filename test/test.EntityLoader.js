@@ -11,7 +11,8 @@ try {
     var dataObject = JSON.parse(test_EntityLoader);
 
     var assert = chai.assert;
-} catch(e) {}
+} catch (e) {
+}
 // Node.js#
 
 
@@ -29,43 +30,45 @@ const CardId = {
     ABILITY_LIGHT_FLASH: 'LightFlash',
     ABILITY_THOR_JUMP: 'Thor\'s jump',
     ABILITY_THOR_HAMMER: 'Thor\'s hammer',
+
+    COUNTERACT: 'counteract',
 };
 
-describe('Entity network', function() {
-    before(function() {
+describe('Entity network', function () {
+    before(function () {
         Entity.clear();
         EntityLoader.proceedDocumentObject(dataObject);
     });
 
-    describe('EntityLoader', function() {
-        it('Card is present', function() {
+    describe('EntityLoader', function () {
+        it('Card is present', function () {
             assert.isTrue(Entity.contains(CardId.CARD));
         });
 
-        it('Card is entity', function() {
+        it('Card is entity', function () {
             var card = Entity.get(CardId.CARD);
             assert.equal(CoreId.ENTITY, card.parentId);
         });
 
-        it('Card has mana', function() {
+        it('Card has mana', function () {
             var card = Entity.get(CardId.CARD);
             assert.isTrue(card.hasProperty(CardId.MANA));
             assert.equal(0, card.mana);
         });
 
-        it('Wizard is card class', function() {
+        it('Wizard is card class', function () {
             var wizard = Entity.get(CardId.CLASS_WIZARD);
             assert.isTrue(wizard.is(CardId.CARD_CLASS));
         });
 
-        it('Gendalf has ability LightFlash', function() {
+        it('Gendalf has ability LightFlash', function () {
             var gendalf = Entity.get(CardId.CHAR_GENDALF);
 
             var ability = gendalf.ability;
             assert.equal(CardId.ABILITY_LIGHT_FLASH, ability.id);
         });
 
-        it('Thor has 2 abilities', function() {
+        it('Thor has 2 abilities', function () {
             var thor = Entity.get(CardId.CHAR_THOR);
 
             var abilities = thor.ability;
@@ -73,6 +76,11 @@ describe('Entity network', function() {
             assert.isTrue(thor.isMultiple('ability'));
             assert.equal(CardId.ABILITY_THOR_JUMP, abilities[0].id);
             assert.equal(CardId.ABILITY_THOR_HAMMER, abilities[1].id);
+        });
+
+        it('Thor counteract LightFlash', function () {
+            var thor = Entity.get(CardId.CHAR_THOR);
+            assert.equal(CardId.ABILITY_LIGHT_FLASH, thor.counteract.id);
         });
     });
 });

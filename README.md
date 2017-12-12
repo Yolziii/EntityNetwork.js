@@ -54,11 +54,11 @@ Each entity in network connected to other entities via properties and inherit re
 {
   "my_grandmother": {
     "age": 85,
-    "name": "Anna"
+    "first_name": "Anna"
   },
   
   "age" : {"is": "int"},
-  "name" : {"is": "string", "min_length": 1}
+  "first_name" : {"is": "string", "min_length": 1}
 }
 ```
 This diagram shows relations and properties between entities:

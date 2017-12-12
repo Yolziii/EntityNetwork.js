@@ -26,6 +26,7 @@
   "id": {"is": "string", "single_line": true},
 
   "ability": {"multiple_value":true},
+  "counteract": {"is": "ability", "c_commanded": true},
 
   "LightFlash" : {
     "is":"ability",
@@ -64,6 +65,7 @@
         "strong": 3},
       { "id": "Thor's hammer",
         "strong": 10}
-    ]
+    ],
+    "counteract": "LightFlash"
   }
 }

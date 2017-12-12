@@ -15,6 +15,8 @@ const CoreId = {
 
     MULTIPLE_VALUE: 'multiple_value',
 
+    C_COMMANDED: 'c_commanded',
+
     REGEXP: 'regexp'
 };
 
@@ -234,6 +236,8 @@ Entity._initValues = function() {
 
     var regexp = Entity.create(CoreId.REGEXP, CoreId.STRING);
     regexp.setValue(CoreId.SINGLE_LINE, true);
+
+    Entity.create(CoreId.C_COMMANDED, CoreId.BOOLEAN);
 };
 
 Entity.get = function(entityId) {
@@ -323,7 +327,9 @@ Entity._checkValue = function(entity, propertyId, value) {
     } else {
         var valueEntity =  Entity.get(value);
         if (!valueEntity.is(property)) {
-            throw new TypeError('Value for "' + propertyId + '" must be string but was ' + valueEntity.id);
+            if (!property.hasProperty(CoreId.C_COMMANDED) || !property[CoreId.C_COMMANDED] || !valueEntity.is(property.parentId)) {
+                throw new TypeError('Value for "' + propertyId + '" must be string but was ' + valueEntity.id);
+            }
         }
     }
 

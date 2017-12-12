@@ -303,7 +303,7 @@ Entity._findImplementation = function(entityId) {
  * @private
  */
 Entity._checkValue = function(entity, propertyId, value) {
-    if (value === null) return;
+    if (value === null) return null;
 
     var property = Entity.get(propertyId);
     if (property.is(CoreId.BOOLEAN)) {

@@ -338,6 +338,20 @@ describe('Entity network', function() {
 
                 assert.equal(4, warrior.health);
             });
+
+            it('changeValue()', function () {
+                Entity.defineImplementationForEntity('prop', {
+                    changeValue: function () {
+                        return 'changed value';
+                    }
+                });
+
+                var prop = Entity.create('prop', CoreId.STRING);
+                var changer = Entity.create("changer", CoreId.INT);
+                changer.setValue(prop, 'original value');
+
+                assert.equal('changed value', changer.prop);
+            });
         });
 
         describe('Unknown property exceptions', function() {

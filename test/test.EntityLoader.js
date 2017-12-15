@@ -10,6 +10,9 @@ try {
     var test_EntityLoader = fs.readFileSync('./test/test.EntityLoader.json', 'utf8');
     var dataObject = JSON.parse(test_EntityLoader);
 
+    var test_EntityLoader2 = fs.readFileSync('./test/test.EntityLoader2.json', 'utf8');
+    var dataObject2 = JSON.parse(test_EntityLoader2);
+
     var assert = chai.assert;
 } catch (e) {
 }
@@ -19,6 +22,7 @@ try {
 const CardId = {
     CARD: 'card',
     MANA: 'mana',
+    NAME: 'name',
 
     CARD_CLASS: 'card_class',
     CLASS_WIZARD: 'class_wizard',
@@ -31,6 +35,8 @@ const CardId = {
     ABILITY_THOR_JUMP: 'Thor\'s jump',
     ABILITY_THOR_HAMMER: 'Thor\'s hammer',
 
+    ABRA_CADABRA: 'Abra-cadabra!',
+
     COUNTERACT: 'counteract',
 };
 
@@ -38,6 +44,7 @@ describe('Entity network', function () {
     before(function () {
         Entity.clear();
         EntityLoader.proceedDocumentObject(dataObject);
+        EntityLoader.proceedDocumentObject(dataObject2);
     });
 
     describe('EntityLoader', function () {
@@ -81,6 +88,12 @@ describe('Entity network', function () {
         it('Thor counteract LightFlash', function () {
             var thor = Entity.get(CardId.CHAR_THOR);
             assert.equal(CardId.ABILITY_LIGHT_FLASH, thor.counteract.id);
+        });
+
+        it('Update existing entity', function () {
+            var abracadabra = Entity.get(CardId.ABRA_CADABRA);
+            assert.equal("Абра-кадабра 2", abracadabra.name);
+            assert.equal("card_spell", abracadabra.parentId);
         });
     });
 });

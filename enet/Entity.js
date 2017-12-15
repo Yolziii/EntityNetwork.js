@@ -328,7 +328,7 @@ Entity._checkValue = function(entity, propertyId, value) {
         var valueEntity = Entity.get(value);
         if (!valueEntity.is(property)) {
             if (!property.hasProperty(CoreId.C_COMMANDED) || !property[CoreId.C_COMMANDED] || !valueEntity.is(property.parentId)) {
-                throw new TypeError('Value for "' + propertyId + '" must be string but was ' + valueEntity.id);
+                throw new TypeError('Value for "' + propertyId + '" must be "'+property.id+'" but was ' + valueEntity.id);
             }
         }
     }

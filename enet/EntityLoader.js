@@ -22,7 +22,9 @@ EntityLoader.proceedDocumentObject = function(dataObject) {
         var entityOb = dataObject[entityId];
         var parentEntityId = entityOb.is === undefined ? 'entity' : entityOb.is;
         if (parentEntityId == null) parentEntityId = undefined;
-        var entity = Entity.create(entityId, parentEntityId);
+        var entity = Entity.contains(entityId)
+            ? Entity.get(entityId)
+            : Entity.create(entityId, parentEntityId);
     }
 
     for (var entityId in dataObject) { // Then add properties to entities

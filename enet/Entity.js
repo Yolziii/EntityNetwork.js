@@ -322,7 +322,11 @@ Entity._checkValue = function(entity, propertyId, value) {
         }
     } else if (property.is(CoreId.STRING)) {
         if (!(typeof value === 'string' || value instanceof String)) {
-            throw new TypeError('Value for "' + propertyId + '" must be string but was ' + value);
+            if (value.is !== null && typeof  value.is === 'function' && value.is(CoreId.ENTITY)) {
+                value = value.id;
+            } else {
+                throw new TypeError('Value for "' + propertyId + '" must be string but was ' + value);
+            }
         }
     } else {
         var valueEntity = Entity.get(value);

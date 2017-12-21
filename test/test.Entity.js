@@ -550,6 +550,15 @@ describe('Entity network', function() {
                     assert.isTrue(e instanceof TypeError);
                 }
             });
+
+            it('Convert entity value to string', function () {
+                var card = Entity.create("card", CoreId.ENTITY);
+                var name = Entity.create("name", CoreId.STRING);
+                Entity.create("some name", CoreId.ENTITY);
+
+                card.setValue(name, 'some name');
+                assert.equal('some name', card.name);
+            });
         });
 
         describe('Implementations', function() {

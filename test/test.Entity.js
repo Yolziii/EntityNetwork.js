@@ -192,7 +192,7 @@ describe('Entity network', function() {
                 strong.setValue(CoreId.MULTIPLE_VALUE, true);
 
                 card.addValue("strong", 1);
-                assert.equal(1, card.strong);
+                assert.equal(1, card.strong[0]);
             });
 
             it('Add 1 value by property', function () {
@@ -217,7 +217,7 @@ describe('Entity network', function() {
                 assert.equal(3, card.strong[2]);
             });
 
-            it('addValue() rewrite multiple values', function () {
+            it('addValue() rewrite multiple value of its parent', function () {
                 var card = Entity.create("card", CoreId.ENTITY);
                 var warrior = Entity.create("warrior", card);
                 var strong = Entity.create("strong", CoreId.INT);
@@ -226,15 +226,10 @@ describe('Entity network', function() {
                 card.addValue("strong", 1);
                 warrior.addValue("strong", 2);
 
-                assert.isFalse(warrior.isMultiple('strong'));
-
-                assert.equal(1, card.strong);
-                assert.equal(2, warrior.strong);
+                assert.equal(1, card.strong[0]);
+                assert.equal(2, warrior.strong[0]);
 
                 warrior.addValue("strong", 3);
-
-                assert.isTrue(warrior.isMultiple('strong'));
-                assert.equal(2, warrior.strong[0]);
                 assert.equal(3, warrior.strong[1]);
             });
 
@@ -247,8 +242,6 @@ describe('Entity network', function() {
 
                 card.addValue("strong", 1);
                 warrior.addValue("strong", 2);
-
-                assert.isTrue(warrior.isMultiple('strong'));
 
                 assert.equal(1, warrior.strong[0]);
                 assert.equal(2, warrior.strong[1]);
@@ -280,58 +273,16 @@ describe('Entity network', function() {
                 assert.isFalse(card.contains('strong', 2));
             });
 
-
-
-            it('Not multiple property', function () {
-                var card = Entity.create("card", CoreId.ENTITY);
+            it('isMultiple()', function () {
                 var strong = Entity.create("strong", CoreId.INT);
                 strong.setValue(CoreId.MULTIPLE_VALUE, true);
 
-                card.addValue("strong", 1);
-                assert.isFalse(card.isMultiple("strong"));
+                assert.isTrue(strong.isMultiple());
             });
 
-            it('Multiple property', function () {
-                var card = Entity.create("card", CoreId.ENTITY);
+            it('!isMultiple()', function () {
                 var strong = Entity.create("strong", CoreId.INT);
-                strong.setValue(CoreId.MULTIPLE_VALUE, true);
-
-                card.addValue("strong", 1);
-                card.addValue("strong", 2);
-                assert.isTrue(card.isMultiple("strong"));
-            });
-
-            it('Multiple property by property', function () {
-                var card = Entity.create("card", CoreId.ENTITY);
-                var strong = Entity.create("strong", CoreId.INT);
-                strong.setValue(CoreId.MULTIPLE_VALUE, true);
-
-                card.addValue(strong, 1);
-                card.addValue(strong, 2);
-                assert.isTrue(card.isMultiple(strong));
-            });
-
-            it('Already not multiple property (by set)', function () {
-                var card = Entity.create("card", CoreId.ENTITY);
-                var strong = Entity.create("strong", CoreId.INT);
-                strong.setValue(CoreId.MULTIPLE_VALUE, true);
-
-                card.addValue("strong", 1);
-                card.addValue("strong", 2);
-                card.setValue("strong", 3);
-                assert.isFalse(card.isMultiple("strong"));
-            });
-
-            it('Already not multiple property (by remove value)', function () {
-                var card = Entity.create("card", CoreId.ENTITY);
-                var strong = Entity.create("strong", CoreId.INT);
-                strong.setValue(CoreId.MULTIPLE_VALUE, true);
-
-                card.addValue("strong", 1);
-                card.addValue("strong", 2);
-
-                card.removeValue("strong", 2);
-                assert.isFalse(card.isMultiple("strong"));
+                assert.isFalse(strong.isMultiple());
             });
 
             it('Child inherits parent property', function () {
@@ -375,16 +326,6 @@ describe('Entity network', function() {
                 var card = Entity.create("card", CoreId.ENTITY);
                 try {
                     card.contains('strong', 1);
-                    assert.isTrue(false);
-                } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
-                }
-            });
-
-            it('Unknown property from isMultiple()', function () {
-                var card = Entity.create("card", CoreId.ENTITY);
-                try {
-                    card.isMultiple('strong');
                     assert.isTrue(false);
                 } catch (e) {
                     assert.isTrue(e instanceof TypeError);
@@ -745,14 +686,17 @@ describe('Entity network', function() {
                 }
             });
 
-            it('Multiple value', function () {
+            it('Can\'t use setValue() for multiple property', function () {
                 var card = Entity.create('card', CoreId.ENTITY);
                 var levels = Entity.create('levels', CoreId.INT);
                 levels.setValue(CoreId.MULTIPLE_VALUE, true);
 
-                card.addValue(levels, 1);
-                card.addValue(levels, 2);
-                assert.isTrue(card.isMultiple(levels));
+                try {
+                    card.setValue(levels, 1);
+                    assert.isTrue(false);
+                } catch (e) {
+                    assert.isTrue(e instanceof TypeError);
+                }
             });
         });
 

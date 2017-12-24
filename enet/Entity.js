@@ -15,8 +15,7 @@ const CoreId = {
 
     MULTIPLE_VALUE: 'multiple_value',
     EXPAND_VALUE: 'expand_value',
-
-    C_COMMANDED: 'c_commanded',
+    C_COMMANDED: 'c_commanded',     // relation c-command
 
     REGEXP: 'regexp'
 };
@@ -56,32 +55,36 @@ Entity.prototype.isFor = function(childEntityId) {
 };
 
 Entity.prototype.setValue = function(property, value) {
-    property = Entity._getPropertyId(property);
-    value = Entity._checkValue(this, property, value);
-    this[property] = value;
+    var propertyId = Entity._getPropertyId(property);
+    property = Entity.get(propertyId);
+    if (property.isMultiple()) {
+        throw new TypeError('Property "'+propertyId+'" market as "multiple_value", use addValue() to set it values!');
+    }
+
+    value = Entity._checkValue(this, propertyId, value);
+    this[propertyId] = value;
 };
 
 Entity.prototype.addValue = function(property, value) {
-    propertyId = Entity._getPropertyId(property);
+    var propertyId = Entity._getPropertyId(property);
     value = Entity._checkValue(this, propertyId, value);
 
     property = Entity.get(propertyId);
-    if (!property.hasProperty(CoreId.MULTIPLE_VALUE) || !property[CoreId.MULTIPLE_VALUE]) {
+    if (!property.isMultiple()) {
         throw new TypeError('Property "'+propertyId+'" must has "multiple_value=true" to store several values!');
     }
 
-    if (this[propertyId] !== undefined && !this.hasOwnProperty(propertyId)) {
-        if (property.hasProperty(CoreId.EXPAND_VALUE) && property[CoreId.EXPAND_VALUE]) {
-            this[propertyId] = this[propertyId];
-        }
-    }
-
-    if (this[propertyId] === undefined || !this.hasOwnProperty(propertyId)) {
-        this[propertyId] = value;
-    } else if (Array.isArray(this[propertyId]) || this[propertyId] instanceof Array) {
+    if (this[propertyId] === undefined) {
+        this[propertyId] = [value];
+    } else if (this.hasOwnProperty(propertyId)) {
         this[propertyId].push(value);
     } else {
-        this[propertyId] = [this[propertyId], value];
+        if (property.hasProperty(CoreId.EXPAND_VALUE) && property[CoreId.EXPAND_VALUE]) {
+            this[propertyId] = this[propertyId];
+            this[propertyId].push(value);
+        } else {
+            this[propertyId] = [value];
+        }
     }
 };
 
@@ -96,11 +99,8 @@ Entity.prototype.hasProperty = function(property) {
     return this[property] !== undefined;
 };
 
-Entity.prototype.isMultiple = function(property) {
-    property = Entity._getPropertyId(property);
-    this._checkPropertyId(property);
-
-    return this[property] !== undefined && (Array.isArray(this[property]) || this[property] instanceof Array);
+Entity.prototype.isMultiple = function() {
+    return this.hasProperty(CoreId.MULTIPLE_VALUE) && this[CoreId.MULTIPLE_VALUE];
 };
 
 Entity.prototype.removeProperty = function(property) {

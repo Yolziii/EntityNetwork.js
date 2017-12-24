@@ -14,6 +14,7 @@ const CoreId = {
     SINGLE_LINE: 'single_line',
 
     MULTIPLE_VALUE: 'multiple_value',
+    EXPAND_VALUE: 'expand_value',
 
     C_COMMANDED: 'c_commanded',
 
@@ -67,6 +68,12 @@ Entity.prototype.addValue = function(property, value) {
     property = Entity.get(propertyId);
     if (!property.hasProperty(CoreId.MULTIPLE_VALUE) || !property[CoreId.MULTIPLE_VALUE]) {
         throw new TypeError('Property "'+propertyId+'" must has "multiple_value=true" to store several values!');
+    }
+
+    if (this[propertyId] !== undefined && !this.hasOwnProperty(propertyId)) {
+        if (property.hasProperty(CoreId.EXPAND_VALUE) && property[CoreId.EXPAND_VALUE]) {
+            this[propertyId] = this[propertyId];
+        }
     }
 
     if (this[propertyId] === undefined || !this.hasOwnProperty(propertyId)) {
@@ -233,6 +240,7 @@ Entity._initValues = function() {
 
     Entity.create(CoreId.SINGLE_LINE, CoreId.BOOLEAN);
     Entity.create(CoreId.MULTIPLE_VALUE, CoreId.BOOLEAN);
+    Entity.create(CoreId.EXPAND_VALUE, CoreId.BOOLEAN);
 
     var regexp = Entity.create(CoreId.REGEXP, CoreId.STRING);
     regexp.setValue(CoreId.SINGLE_LINE, true);

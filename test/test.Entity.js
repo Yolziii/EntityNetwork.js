@@ -217,7 +217,7 @@ describe('Entity network', function() {
                 assert.equal(3, card.strong[2]);
             });
 
-            it('addValue() works only with own properties', function () {
+            it('addValue() rewrite multiple values', function () {
                 var card = Entity.create("card", CoreId.ENTITY);
                 var warrior = Entity.create("warrior", card);
                 var strong = Entity.create("strong", CoreId.INT);
@@ -236,6 +236,22 @@ describe('Entity network', function() {
                 assert.isTrue(warrior.isMultiple('strong'));
                 assert.equal(2, warrior.strong[0]);
                 assert.equal(3, warrior.strong[1]);
+            });
+
+            it('addValue() with "expand_value" expand multiple values', function () {
+                var card = Entity.create("card", CoreId.ENTITY);
+                var warrior = Entity.create("warrior", card);
+                var strong = Entity.create("strong", CoreId.INT);
+                strong.setValue(CoreId.MULTIPLE_VALUE, true);
+                strong.setValue(CoreId.EXPAND_VALUE, true);
+
+                card.addValue("strong", 1);
+                warrior.addValue("strong", 2);
+
+                assert.isTrue(warrior.isMultiple('strong'));
+
+                assert.equal(1, warrior.strong[0]);
+                assert.equal(2, warrior.strong[1]);
             });
 
             it('Contains one value', function () {

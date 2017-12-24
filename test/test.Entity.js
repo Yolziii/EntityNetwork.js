@@ -686,17 +686,13 @@ describe('Entity network', function() {
                 }
             });
 
-            it('Can\'t use setValue() for multiple property', function () {
+            it('setValue() use addValue()', function () {
                 var card = Entity.create('card', CoreId.ENTITY);
                 var levels = Entity.create('levels', CoreId.INT);
                 levels.setValue(CoreId.MULTIPLE_VALUE, true);
 
-                try {
-                    card.setValue(levels, 1);
-                    assert.isTrue(false);
-                } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
-                }
+                card.setValue(levels, 1);
+                assert.equal(1, card.levels[0]);
             });
         });
 

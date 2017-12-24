@@ -58,11 +58,11 @@ Entity.prototype.setValue = function(property, value) {
     var propertyId = Entity._getPropertyId(property);
     property = Entity.get(propertyId);
     if (property.isMultiple()) {
-        throw new TypeError('Property "'+propertyId+'" market as "multiple_value", use addValue() to set it values!');
+        this.addValue(property, value);
+    } else {
+        value = Entity._checkValue(this, propertyId, value);
+        this[propertyId] = value;
     }
-
-    value = Entity._checkValue(this, propertyId, value);
-    this[propertyId] = value;
 };
 
 Entity.prototype.addValue = function(property, value) {

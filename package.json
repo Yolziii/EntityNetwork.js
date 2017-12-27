@@ -39,7 +39,10 @@
     "node-schedule": "^1.2.5",
     "nyc": "^11.4.0",
     "pump": "^2.0.0",
-    "request": "^2.83.0",
+    "request": "^2.83.0"
+  },
+  "dependencies": {
+    "gulp-jsmin": "^0.1.5",
     "merge-stream": "^1.0.1"
   },
   "directories": {

@@ -71,7 +71,7 @@ describe('Entity network', function () {
         it('Gendalf has ability LightFlash', function () {
             var gendalf = Entity.get(CardId.CHAR_GENDALF);
 
-            var ability = gendalf.ability;
+            var ability = gendalf.ability[0];
             assert.equal(CardId.ABILITY_LIGHT_FLASH, ability.id);
         });
 
@@ -80,14 +80,13 @@ describe('Entity network', function () {
 
             var abilities = thor.ability;
             assert.isTrue(Array.isArray(abilities));
-            assert.isTrue(thor.isMultiple('ability'));
             assert.equal(CardId.ABILITY_THOR_JUMP, abilities[0].id);
             assert.equal(CardId.ABILITY_THOR_HAMMER, abilities[1].id);
         });
 
         it('Thor counteract LightFlash', function () {
             var thor = Entity.get(CardId.CHAR_THOR);
-            assert.equal(CardId.ABILITY_LIGHT_FLASH, thor.counteract.id);
+            assert.equal(CardId.ABILITY_LIGHT_FLASH, thor.counteract[0].id);
         });
 
         it('Update existing entity', function () {

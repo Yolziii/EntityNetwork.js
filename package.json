@@ -29,18 +29,19 @@
     "gulp-clean": "^0.3.2",
     "gulp-concat": "^2.6.1",
     "gulp-depend": "^1.1.0",
+    "gulp-minify": "^2.1.0",
     "gulp-mocha": "^4.3.1",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.6.1",
     "gulp-uglify": "^3.0.0",
     "gulp-zip": "^4.0.0",
     "https": "^1.0.0",
+    "merge-stream": "^1.0.1",
     "mocha": "^4.0.1",
     "node-schedule": "^1.2.5",
     "nyc": "^11.4.0",
     "pump": "^2.0.0",
-    "request": "^2.83.0",
-    "merge-stream": "^1.0.1"
+    "request": "^2.83.0"
   },
   "directories": {
     "doc": "docs",

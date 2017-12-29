@@ -64,7 +64,7 @@ Entity.prototype.addValue = function(property, value) {
         this[propertyId].push(value);
     } else {
         if (property.hasProperty(CoreId.EXPAND_VALUE) && property[CoreId.EXPAND_VALUE]) {
-            this[propertyId] = this[propertyId];
+            this[propertyId] = this[propertyId].slice();
             this[propertyId].push(value);
         } else {
             this[propertyId] = [value];

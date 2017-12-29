@@ -246,6 +246,20 @@ describe('Entity network', function() {
                 assert.equal(2, warrior.strong[1]);
             });
 
+            it('Do not expand parent property', function () {
+                var card = Entity.create("card", CoreId.ENTITY);
+                var warrior = Entity.create("warrior", card);
+                var strong = Entity.create("strong", CoreId.INT);
+                strong.setValue(CoreId.MULTIPLE_VALUE, true);
+                strong.setValue(CoreId.EXPAND_VALUE, true);
+
+                card.addValue("strong", 10);
+                warrior.addValue("strong", 20);
+
+                assert.equal(1, card.strong.length);
+                assert.equal(2, warrior.strong.length);
+            });
+
             it('Contains one value', function () {
                 var card = Entity.create("card", CoreId.ENTITY);
                 Entity.create("strong", CoreId.INT);

@@ -11,7 +11,7 @@ const zip = require('gulp-zip');
 const replace = require('gulp-replace');
 const mocha = require('gulp-mocha');
 const pump = require('pump');
-var minify = require('gulp-minify');
+const jsmin = require('gulp-jsmin');
 //const imagemin = require('gulp-imagemin');
 
 //const babel = require('gulp-babel');
@@ -51,28 +51,12 @@ gulp.task('copySources', ['copyTestsJson'], function() {
     return gulp.src(path.join(source, '/**/*.js'))
         .pipe(replace(/\/\/ #Node.js[.\W\w]*\/\/ Node.js#/gi, ''))
         .pipe(concat(libraryFile))
-        .pipe(minify({
-            ext:{
-                src:'-debug.js',
-                min:'-min.js'
-            },
-            //exclude: ['tasks'],
-            //ignoreFiles: ['.combo.js', '-min.js']
-        }))
+        .pipe(jsmin())
         .pipe(gulp.dest(destination));
 });
 
-gulp.task('compress', ['copySources'], function (cb) {
-    pump([
-            gulp.src(libraryFile),
-            uglify(),
-            gulp.dest(destination + '/' + libraryFile)
-        ],
-        cb
-    );
-});
 
-gulp.task('processHtml', ['compress'], function() {
+gulp.task('processHtml', ['copySources'], function() {
     return gulp.src(path.join(destination, '/test.html'))
 
         //.pipe(gulp.dest(path.join(destination, '/test.html')));

@@ -1,25 +1,9 @@
-const CoreId = {
-    ENTITY: 'entity',
-
-    DATA_TYPE: 'datatype', // Data types
-    BOOLEAN: 'bool',
-    INT: 'int',
-    FLOAT: 'float',
-    STRING: 'string',
-
-    MAX_VALUE: 'max_value',    // Conditions
-    MIN_VALUE: 'min_value',
-    MAX_LENGTH: 'max_length',
-    MIN_LENGTH: 'min_length',
-    SINGLE_LINE: 'single_line',
-
-    MULTIPLE_VALUE: 'multiple_value',
-    EXPAND_VALUE: 'expand_value',
-    C_COMMANDED: 'c_commanded',     // relation c-command
-
-    REGEXP: 'regexp'
-};
-
+// #Node.js
+try {
+    var CoreId = require('./CoreId.js');
+    module.exports = Entity;
+} catch(e) {}
+// Node.js#
 
 //========================================================================================================================================================================
 // Object members
@@ -80,7 +64,7 @@ Entity.prototype.addValue = function(property, value) {
         this[propertyId].push(value);
     } else {
         if (property.hasProperty(CoreId.EXPAND_VALUE) && property[CoreId.EXPAND_VALUE]) {
-            this[propertyId] = this[propertyId];
+            this[propertyId] = this[propertyId].slice();
             this[propertyId].push(value);
         } else {
             this[propertyId] = [value];
@@ -145,6 +129,7 @@ Entity.prototype._checkPropertyId = function(propertyID) {
         throw new TypeError('Undefined property "'+propertyID+'"');
     }
 };
+
 
 //========================================================================================================================================================================
 // "Static" members
@@ -368,8 +353,3 @@ Entity._getPropertyId = function(property) {
 
 Entity._initValues();
 
-// #Node.js
-try {
-    module.exports = {Entity: Entity, CoreId:CoreId};
-} catch(e) {}
-// Node.js#

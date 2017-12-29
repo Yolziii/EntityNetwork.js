@@ -1,9 +1,8 @@
 // #Node.js
 try {
     var chai = require('chai');
-    var entityModule = require('../enet/Entity.js');
-    var Entity = entityModule.Entity;
-    var CoreId = entityModule.CoreId;
+    var Entity = require('../enet/Entity');
+    var CoreId = require('../enet/CoreId');
 
     var assert = chai.assert;
 } catch(e) {}
@@ -19,7 +18,7 @@ describe('Entity network', function() {
         describe('Parents and children', function() {
             it('Can\'t get not existing entity', function () {
                 try {
-                     Entity.get("card");
+                    Entity.get("card");
                     assert.isTrue(false);
                 } catch (e) {
                     assert.isTrue(e instanceof TypeError);
@@ -245,6 +244,20 @@ describe('Entity network', function() {
 
                 assert.equal(1, warrior.strong[0]);
                 assert.equal(2, warrior.strong[1]);
+            });
+
+            it('Do not expand parent property', function () {
+                var card = Entity.create("card", CoreId.ENTITY);
+                var warrior = Entity.create("warrior", card);
+                var strong = Entity.create("strong", CoreId.INT);
+                strong.setValue(CoreId.MULTIPLE_VALUE, true);
+                strong.setValue(CoreId.EXPAND_VALUE, true);
+
+                card.addValue("strong", 10);
+                warrior.addValue("strong", 20);
+
+                assert.equal(1, card.strong.length);
+                assert.equal(2, warrior.strong.length);
             });
 
             it('Contains one value', function () {

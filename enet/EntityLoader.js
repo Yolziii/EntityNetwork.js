@@ -1,12 +1,10 @@
 // #Node.js
 try {
-    var entityModule = require('./Entity.js');
-    var Entity = entityModule.Entity;
-    var CoreId = entityModule.CoreId;
+    var Entity = require('./Entity.js');
+    var CoreId = require('./CoreId.js');
 
-    module.exports = { EntityLoader: EntityLoader };
+    module.exports = EntityLoader;
 } catch(e) {}
-
 // Node.js#
 
 function EntityLoader() {

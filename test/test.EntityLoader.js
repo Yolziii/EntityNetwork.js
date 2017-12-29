@@ -2,10 +2,9 @@
 try {
     var chai = require('chai');
     var fs = require('fs');
-    var EntityLoader = require('../enet/EntityLoader.js').EntityLoader;
-    var entityModule = require('../enet/Entity.js');
-    var Entity = entityModule.Entity;
-    var CoreId = entityModule.CoreId;
+    var EntityLoader = require('../enet/EntityLoader');
+    var Entity = require('../enet/Entity');
+    var CoreId = require('../enet/CoreId');
 
     var test_EntityLoader = fs.readFileSync('./test/test.EntityLoader.json', 'utf8');
     var dataObject = JSON.parse(test_EntityLoader);

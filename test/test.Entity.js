@@ -1,9 +1,8 @@
 // #Node.js
 try {
     var chai = require('chai');
-    var entityModule = require('../enet/Entity.js');
-    var Entity = entityModule.Entity;
-    var CoreId = entityModule.CoreId;
+    var Entity = require('../enet/Entity');
+    var CoreId = require('../enet/CoreId');
 
     var assert = chai.assert;
 } catch(e) {}
@@ -19,7 +18,7 @@ describe('Entity network', function() {
         describe('Parents and children', function() {
             it('Can\'t get not existing entity', function () {
                 try {
-                     Entity.get("card");
+                    Entity.get("card");
                     assert.isTrue(false);
                 } catch (e) {
                     assert.isTrue(e instanceof TypeError);

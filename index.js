@@ -1,8 +1,6 @@
-var entityModule = require('./enet/Entity');
-var EntityLoader = require('./enet/EntityLoader').EntityLoader;
-
-var Entity = entityModule.Entity;
-var CoreId = entityModule.CoreId;
+var CoreId = require('./enet/CoreId');
+var Entity = require('./enet/Entity');
+var EntityLoader = require('./enet/EntityLoader');
 
 module.exports = {
     Entity: Entity,

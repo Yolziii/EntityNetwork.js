@@ -3,6 +3,8 @@ try {
     var chai = require('chai');
     var Entity = require('../enet/Entity');
     var CoreId = require('../enet/CoreId');
+    var EntityError = require('../enet/EntityError');
+    var EntityErrorId = require('../enet/EntityErrorId');
 
     var assert = chai.assert;
 } catch(e) {}
@@ -21,7 +23,7 @@ describe('Entity network', function() {
                     Entity.get("card");
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.UnknownEntity, e.id);
                 }
             });
 
@@ -321,7 +323,7 @@ describe('Entity network', function() {
 
             it('changeValue()', function () {
                 Entity.defineImplementationForEntity('prop', {
-                    changeValue: function () {
+                    checkValueAsProperty: function () {
                         return 'changed value';
                     }
                 });
@@ -341,7 +343,7 @@ describe('Entity network', function() {
                     card.contains('strong', 1);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.UndefinedProperty, e.id);
                 }
             });
 
@@ -351,7 +353,7 @@ describe('Entity network', function() {
                     card.getValue('strong');
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.UndefinedProperty, e.id);
                 }
             });
 
@@ -361,7 +363,7 @@ describe('Entity network', function() {
                     card.getValue('strong');
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.UndefinedProperty, e.id);
                 }
             });
 
@@ -397,7 +399,7 @@ describe('Entity network', function() {
                     card.setValue(checked, 1);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.NotBoolean, e.id);
                 }
             });
 
@@ -423,7 +425,7 @@ describe('Entity network', function() {
                     card.setValue(health, "123");
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.NotInt, e.id);
                 }
             });
 
@@ -435,7 +437,7 @@ describe('Entity network', function() {
                     card.setValue(health, 1.5);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.NotInt, e.id);
                 }
             });
 
@@ -461,7 +463,7 @@ describe('Entity network', function() {
                     card.setValue(rank, "123.4");
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.NotFloat, e.id);
                 }
             });
 
@@ -487,7 +489,7 @@ describe('Entity network', function() {
                     card.setValue(desc, 123);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.NotString, e.id);
                 }
             });
 
@@ -517,7 +519,7 @@ describe('Entity network', function() {
                     card.setValue(cardClass, notClass);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.NotParticularEntity, e.id);
                 }
             });
 
@@ -565,7 +567,7 @@ describe('Entity network', function() {
                     card.setValue(health, 15);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.ConditionMaxValue, e.id);
                 }
             });
 
@@ -578,7 +580,7 @@ describe('Entity network', function() {
                     card.setValue(health, -5);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.ConditionMinValue, e.id);
                 }
             });
 
@@ -591,7 +593,7 @@ describe('Entity network', function() {
                     card.setValue(rank, 10.1);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.ConditionMaxValue, e.id);
                 }
             });
 
@@ -604,7 +606,7 @@ describe('Entity network', function() {
                     card.setValue(rank, -0.1);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.ConditionMinValue, e.id);
                 }
             });
 
@@ -617,7 +619,7 @@ describe('Entity network', function() {
                     card.setValue(desc, "123456");
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.ConditionMaxLength, e.id);
                 }
             });
 
@@ -630,7 +632,7 @@ describe('Entity network', function() {
                     card.setValue(desc, "1234");
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.ConditionMinLength, e.id);
                 }
             });
 
@@ -643,7 +645,7 @@ describe('Entity network', function() {
                     card.setValue(desc, "one\nsecond");
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.ConditionSingleLine, e.id);
                 }
             });
 
@@ -654,14 +656,25 @@ describe('Entity network', function() {
                 assert.equal("one\nsecond", card.desc);
             });
 
-            it('Single line to not string property', function () {
+            it('"regexp" to not string property', function () {
+                var health = Entity.create('health', CoreId.INT);
+
+                try {
+                    health.setValue(CoreId.REGEXP, "/a/g");
+                    assert.isTrue(false);
+                } catch (e) {
+                    assert.equal(EntityErrorId.RegexpForStringsOnly, e.id);
+                }
+            });
+
+            it('"single_line" to not string property', function () {
                 var health = Entity.create('health', CoreId.INT);
 
                 try {
                     health.setValue(CoreId.SINGLE_LINE, true);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.SingleLineForStringsOnly, e.id);
                 }
             });
 
@@ -674,7 +687,7 @@ describe('Entity network', function() {
                     person.setValue(email, "not email");
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.ConditionRegexp, e.id);
                 }
             });
 
@@ -695,7 +708,7 @@ describe('Entity network', function() {
                     card.addValue(health, 1);
                     assert.isTrue(false);
                 } catch (e) {
-                    assert.isTrue(e instanceof TypeError);
+                    assert.equal(EntityErrorId.NotMultiple, e.id);
                 }
             });
 
@@ -706,6 +719,22 @@ describe('Entity network', function() {
 
                 card.setValue(levels, 1);
                 assert.equal(1, card.levels[0]);
+            });
+
+            it('Not unique value', function () {
+
+                var protocolId = Entity.create('protocol_id', CoreId.INT);
+                protocolId.setValue(CoreId.UNIQUE, true);
+
+                var state1 = Entity.create('state1', CoreId.ENTITY);
+                state1.setValue(protocolId, 1);
+                var state2 = Entity.create('state2', CoreId.ENTITY);
+                try {
+                    state2.setValue(protocolId, 1);
+                    assert.isTrue(false);
+                } catch (e) {
+                    assert.equal(EntityErrorId.NotUniqueValue, e.id);
+                }
             });
         });
 

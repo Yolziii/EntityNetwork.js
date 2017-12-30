@@ -1,6 +1,17 @@
 // #Node.js
 try {
     var CoreId = require('./CoreId.js');
+    var EntityError = require('./EntityError');
+    var EntityErrorId = require('./EntityErrorId');
+
+    var DataType_Int = require('./core_entities/int');
+    var DataType_Float = require('./core_entities/float');
+    var DataType_String = require('./core_entities/string');
+
+    var Property_SingleLine = require('./core_entities/single_line');
+    var Property_Regexp = require('./core_entities/regexp');
+    var Property_Unique = require('./core_entities/unique');
+
     module.exports = Entity;
 } catch(e) {}
 // Node.js#
@@ -55,7 +66,9 @@ Entity.prototype.addValue = function(property, value) {
 
     property = Entity.get(propertyId);
     if (!property.isMultiple()) {
-        throw new TypeError('Property "'+propertyId+'" must has "multiple_value=true" to store several values!');
+        throw new EntityError(
+            EntityErrorId.NotMultiple,
+            'Property "'+propertyId+'" must has "multiple_value=true" to store several values!');
     }
 
     if (this[propertyId] === undefined) {
@@ -126,7 +139,9 @@ Entity.prototype.removeValue = function(property, value) {
 
 Entity.prototype._checkPropertyId = function(propertyID) {
     if (this[propertyID] === undefined)  {
-        throw new TypeError('Undefined property "'+propertyID+'"');
+        throw new EntityError(
+            EntityErrorId.UndefinedProperty,
+            'Undefined property "'+propertyID+'"');
     }
 };
 
@@ -150,67 +165,14 @@ Entity.contains = function(entityId) {
 };
 
 Entity._initValues = function() {
-    Entity.defineImplementationForEntity(CoreId.INT, {
-        checkValue: function(property, entity, value) {
-            if (property[CoreId.MAX_VALUE] !== undefined && value > property[CoreId.MAX_VALUE]) {
-                throw new TypeError('Value for "' + property.id + '" must be <= ' + property[CoreId.MAX_VALUE] + ' but was ' + value);
-            }
+    Entity.defineImplementationForEntity(CoreId.INT, DataType_Int);
+    Entity.defineImplementationForEntity(CoreId.FLOAT, DataType_Float);
+    Entity.defineImplementationForEntity(CoreId.STRING, DataType_String);
+    Entity.defineImplementationForEntity(CoreId.SINGLE_LINE, Property_SingleLine);
+    Entity.defineImplementationForEntity(CoreId.REGEXP, Property_Regexp);
+    Entity.defineImplementationForEntity(CoreId.UNIQUE, Property_Unique);
 
-            if (property[CoreId.MIN_VALUE] !== undefined && value < property[CoreId.MIN_VALUE]) {
-                throw new TypeError('Value for "' + property.id + '" must be <= ' + property[CoreId.MAX_VALUE] + ' but was ' + value);
-            }
-        }
-    });
-
-    Entity.defineImplementationForEntity(CoreId.FLOAT, {
-        checkValue: function(property, entity, value) {
-            if (property[CoreId.MAX_VALUE] !== undefined && value > property[CoreId.MAX_VALUE]) {
-                throw new TypeError('Value for "' + property.id + '" must be <= ' + property[CoreId.MAX_VALUE] + ' but was ' + value);
-            }
-
-            if (property[CoreId.MIN_VALUE] !== undefined && value < property[CoreId.MIN_VALUE]) {
-                throw new TypeError('Value for "' + property.id + '" must be <= ' + property[CoreId.MAX_VALUE] + ' but was ' + value);
-            }
-        }
-    });
-
-    Entity.defineImplementationForEntity(CoreId.STRING, {
-        checkValue: function(property, entity, value) {
-            if (property[CoreId.MAX_LENGTH] !== undefined && value.length > property[CoreId.MAX_LENGTH]) {
-                throw new TypeError('Length of string value for "' + property.id + '" must be <= ' + property[CoreId.MAX_VALUE] + ' but was ' + value.length);
-            }
-
-            if (property[CoreId.MIN_LENGTH] !== undefined && value.length < property[CoreId.MIN_LENGTH]) {
-                throw new TypeError('Length of string value for "' + property.id + '" must be <= ' + property[CoreId.MAX_VALUE] + ' but was ' + value.length);
-            }
-
-            if (property[CoreId.SINGLE_LINE] !== undefined && property[CoreId.SINGLE_LINE] && value.indexOf('\n') != -1) {
-                throw new TypeError('String value for "' + property.id + '" must be single line but was "' + value + '"');
-            }
-
-            if (property[CoreId.REGEXP] !== undefined && !value.match(new RegExp(property[CoreId.REGEXP]))) {
-                throw new TypeError('String value "' + value + '" for "' + property.id + '" doesn\'t match to regexp "'+property[CoreId.REGEXP]+'"');
-            }
-        }
-    });
-
-    Entity.defineImplementationForEntity(CoreId.SINGLE_LINE, {
-        checkValue: function(property, entity, value) {
-            if (!entity.is(CoreId.STRING)) {
-                throw new TypeError('Single line can be applied to string properties only but property is "' + property.id + '"');
-            }
-        }
-    });
-
-    Entity.defineImplementationForEntity(CoreId.REGEXP, {
-        checkValue: function(property, entity, value) {
-            if (!entity.is(CoreId.STRING)) {
-                throw new TypeError('Regexp can be applied to string properties only but property is "' + property.id + '"');
-            }
-        }
-    });
-
-    // TODO: Load from core.json
+    // TODO: Load from core.json?
     var entity = Entity.create(CoreId.ENTITY, null);
     var dataType = Entity.create(CoreId.DATA_TYPE, entity);
     Entity.create(CoreId.BOOLEAN, dataType);
@@ -231,12 +193,16 @@ Entity._initValues = function() {
     regexp.setValue(CoreId.SINGLE_LINE, true);
 
     Entity.create(CoreId.C_COMMANDED, CoreId.BOOLEAN);
+
+    Entity.create(CoreId.UNIQUE, CoreId.BOOLEAN);
 };
 
 Entity.get = function(entityId) {
     entityId = Entity._getPropertyId(entityId);
     if (Entity._entities[entityId] === undefined) {
-        throw new TypeError('Unknown entity "'+entityId+'"');
+        throw new EntityError(
+            EntityErrorId.UnknownEntity,
+            'Unknown entity "'+entityId+'"');
     }
 
     return Entity._entities[entityId];
@@ -301,41 +267,58 @@ Entity._checkValue = function(entity, propertyId, value) {
     var property = Entity.get(propertyId);
     if (property.is(CoreId.BOOLEAN)) {
         if (!(typeof value === 'boolean' || value instanceof Boolean))
-            throw new TypeError('Value for "'+propertyId+'" must be boolean but was ' + value);
+            throw new EntityError(
+                EntityErrorId.NotBoolean,
+                'Value for "'+propertyId+'" must be boolean but was ' + value);
     } else if (property.is(CoreId.INT)) {
         if (!(typeof value === 'number' || value instanceof Number)) {
-            throw new TypeError('Value for "'+propertyId+'" must be int but was ' + value);
+            throw new EntityError(
+                EntityErrorId.NotInt,
+                'Value for "'+propertyId+'" must be int but was ' + value);
         }
         if (value % 1 !== 0) {
-            throw new TypeError('Value for "' + propertyId + '" must be int but was ' + value);
+            throw new EntityError(
+                EntityErrorId.NotInt,
+                'Value for "' + propertyId + '" must be int but was ' + value);
         }
     } else if (property.is(CoreId.FLOAT)) {
         if (!(typeof value === 'number' || value instanceof Number)) {
-            throw new TypeError('Value for "' + propertyId + '" must be number but was ' + value);
+            throw new EntityError(
+                EntityErrorId.NotFloat,
+                'Value for "' + propertyId + '" must be number but was ' + value);
         }
     } else if (property.is(CoreId.STRING)) {
         if (!(typeof value === 'string' || value instanceof String)) {
             if (value.is !== null && typeof  value.is === 'function' && value.is(CoreId.ENTITY)) {
                 value = value.id;
             } else {
-                throw new TypeError('Value for "' + propertyId + '" must be string but was ' + value);
+                throw new EntityError(
+                    EntityErrorId.NotString,
+                    'Value for "' + propertyId + '" must be string but was ' + value);
             }
         }
     } else {
         var valueEntity = Entity.get(value);
         if (!valueEntity.is(property)) {
             if (!property.hasProperty(CoreId.C_COMMANDED) || !property[CoreId.C_COMMANDED] || !valueEntity.is(property.parentId)) {
-                throw new TypeError('Value for "' + propertyId + '" must be "'+property.id+'" but was ' + valueEntity.id);
+                throw new EntityError(
+                    EntityErrorId.NotParticularEntity,
+                    'Value for "' + propertyId + '" must be "'+property.id+'" but was ' + valueEntity.id);
             }
         }
     }
 
-    if (property.checkValue !== undefined) {
-        property.checkValue(property, entity, value);
+    if (property.checkValueAsProperty !== undefined) {
+        value = property.checkValueAsProperty(entity, value);
     }
 
-    if (property.changeValue !== undefined) {
-        value = property.changeValue(property, entity, value);
+    // TODO: Check methods in all properties?
+    if (property.hasProperty(CoreId.UNIQUE) && property[CoreId.UNIQUE]) {
+        Entity.get(CoreId.UNIQUE).checkUniqueValue(property, value);
+    }
+
+    if (entity.checkValueAsEntity !== undefined) {
+        value = entity.checkValueAsEntity(property, value);
     }
 
     return value;

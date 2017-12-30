@@ -1,6 +1,6 @@
 {
   "name": "entity-network",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "This package implements entity network paradigm to work with data",
   "main": "index.js",
   "scripts": {
@@ -39,9 +39,7 @@
     "node-schedule": "^1.2.5",
     "nyc": "^11.4.0",
     "pump": "^2.0.0",
-    "request": "^2.83.0"
-  },
-  "dependencies": {
+    "request": "^2.83.0",
     "gulp-jsmin": "^0.1.5",
     "merge-stream": "^1.0.1"
   },

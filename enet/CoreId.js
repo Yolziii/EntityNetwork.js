@@ -17,7 +17,9 @@ const CoreId = {
     EXPAND_VALUE: 'expand_value',
     C_COMMANDED: 'c_commanded',     // relation c-command
 
-    REGEXP: 'regexp'
+    REGEXP: 'regexp',
+
+    UNIQUE: 'unique'
 };
 
 // #Node.js

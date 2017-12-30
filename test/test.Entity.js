@@ -1,4 +1,4 @@
-// #Node.js
+// #import modules
 try {
     var chai = require('chai');
     var Entity = require('../enet/Entity');
@@ -8,7 +8,7 @@ try {
 
     var assert = chai.assert;
 } catch(e) {}
-// Node.js#
+// import modules#
 
 describe('Entity network', function() {
     beforeEach(function() {

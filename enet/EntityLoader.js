@@ -1,11 +1,13 @@
-// #Node.js
+//= require CoreId.js
+
+// #import modules
 try {
     var Entity = require('./Entity.js');
     var CoreId = require('./CoreId.js');
 
     module.exports = EntityLoader;
 } catch(e) {}
-// Node.js#
+// import modules#
 
 function EntityLoader() {
 }
@@ -86,3 +88,12 @@ EntityLoader._proceedProperties = function(entity, entityObject) {
         EntityLoader._proceedValue(entity, propertyId, value, false);
     }
 };
+
+// #export modules
+try {
+    var Entity = require('./Entity.js');
+    var CoreId = require('./CoreId.js');
+
+    module.exports = EntityLoader;
+} catch(e) {}
+// export modules#

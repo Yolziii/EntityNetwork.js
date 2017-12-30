@@ -1,4 +1,6 @@
-// #Node.js
+//= require CoreId.js
+
+// #import modules
 try {
     var CoreId = require('./CoreId.js');
     var EntityError = require('./EntityError');
@@ -11,10 +13,8 @@ try {
     var Property_SingleLine = require('./core_entities/single_line');
     var Property_Regexp = require('./core_entities/regexp');
     var Property_Unique = require('./core_entities/unique');
-
-    module.exports = Entity;
 } catch(e) {}
-// Node.js#
+// import modules#
 
 //========================================================================================================================================================================
 // Object members
@@ -336,3 +336,8 @@ Entity._getPropertyId = function(property) {
 
 Entity._initValues();
 
+// #export modules
+try {
+    module.exports = Entity;
+} catch(e) {}
+// export modules#

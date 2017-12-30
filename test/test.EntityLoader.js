@@ -1,4 +1,4 @@
-// #Node.js
+// #import modules
 try {
     var chai = require('chai');
     var fs = require('fs');
@@ -15,7 +15,7 @@ try {
     var assert = chai.assert;
 } catch (e) {
 }
-// Node.js#
+// import modules#
 
 
 const CardId = {
@@ -36,7 +36,7 @@ const CardId = {
 
     ABRA_CADABRA: 'Abra-cadabra!',
 
-    COUNTERACT: 'counteract',
+    COUNTERACT: 'counteract'
 };
 
 describe('Entity network', function () {

@@ -26,8 +26,8 @@ var EntityErrorId = {
     NotUniqueValue: 1000
 };
 
-// #Node.js
+// #export modules
 try {
     module.exports = EntityErrorId;
 } catch(e) {}
-// Node.js#
+// export modules#

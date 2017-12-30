@@ -30,7 +30,8 @@ gulp.task('removeWeb',  function() {
 
 gulp.task('copyTestsJs', ['removeWeb'], function() {
     return gulp.src(path.join(tests, '/**/*.js'))
-        .pipe(replace(/\/\/ #Node.js[.\W\w]*\/\/ Node.js#/gi, ''))
+        .pipe(replace(/\/\/ #import modules[.\W\w]*\/\/ import modules#/gi, ''))
+        .pipe(replace(/\/\/ #export modules[.\W\w]*\/\/ export modules#/gi, ''))
         .pipe(gulp.dest(destination));
 });
 
@@ -47,9 +48,17 @@ gulp.task('copyTestsJson', ['copyTestsHtml'], function() {
         .pipe(gulp.dest(destination));
 });
 
-gulp.task('copySources', ['copyTestsJson'], function() {
+gulp.task('copyTestsJson2', ['copyTestsJson'], function() {
+    return gulp.src(path.join(tests, 'test.EntityLoader2.json'))
+        .pipe(replace(/^([.\W\w]*)$/g, 'var dataObject2 = $1;'))
+        .pipe(rename('test.EntityLoader2.json.js'))
+        .pipe(gulp.dest(destination));
+});
+
+gulp.task('copySources', ['copyTestsJson2'], function() {
     return gulp.src(path.join(source, '/**/*.js'))
-        .pipe(replace(/\/\/ #Node.js[.\W\w]*\/\/ Node.js#/gi, ''))
+        .pipe(replace(/\/\/ #import modules[.\W\w]*\/\/ import modules#/gi, ''))
+        .pipe(replace(/\/\/ #export modules[.\W\w]*\/\/ export modules#/gi, ''))
         .pipe(concat(libraryFile))
         .pipe(jsmin())
         .pipe(gulp.dest(destination));

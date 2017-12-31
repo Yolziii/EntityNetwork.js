@@ -57,6 +57,7 @@ gulp.task('copyTestsJson2', ['copyTestsJson'], function() {
 
 gulp.task('copySources', ['copyTestsJson2'], function() {
     return gulp.src(path.join(source, '/**/*.js'))
+        .pipe(depend())
         .pipe(replace(/\/\/ #import modules[.\W\w]*\/\/ import modules#/gi, ''))
         .pipe(replace(/\/\/ #export modules[.\W\w]*\/\/ export modules#/gi, ''))
         .pipe(concat(libraryFile))

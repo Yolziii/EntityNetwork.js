@@ -9,7 +9,7 @@ try {
 var Property_Unique = {
     _values: {},
 
-    checkUniqueValue: function(property, value) {
+    checkValueAsActiveProperty: function(property, entity, value) {
         if (this._values[property.id] === undefined) {
             this._values[property.id] = [];
         }

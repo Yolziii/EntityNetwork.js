@@ -1,4 +1,5 @@
 //= require CoreId.js
+//= require active_property.js
 
 // #import modules
 try {
@@ -13,6 +14,7 @@ try {
     var Property_SingleLine = require('./core_entities/single_line');
     var Property_Regexp = require('./core_entities/regexp');
     var Property_Unique = require('./core_entities/unique');
+    var Property_ActiveProperty = require('./core_entities/active_property');
 } catch(e) {}
 // import modules#
 
@@ -171,6 +173,7 @@ Entity._initValues = function() {
     Entity.defineImplementationForEntity(CoreId.SINGLE_LINE, Property_SingleLine);
     Entity.defineImplementationForEntity(CoreId.REGEXP, Property_Regexp);
     Entity.defineImplementationForEntity(CoreId.UNIQUE, Property_Unique);
+    Entity.defineImplementationForEntity(CoreId.ACTIVE_PROPERTY, Property_ActiveProperty);
 
     // TODO: Load from core.json?
     var entity = Entity.create(CoreId.ENTITY, null);
@@ -179,6 +182,8 @@ Entity._initValues = function() {
     Entity.create(CoreId.INT, dataType);
     Entity.create(CoreId.FLOAT, dataType);
     Entity.create(CoreId.STRING, dataType);
+
+    Entity.create(CoreId.ACTIVE_PROPERTY, CoreId.BOOLEAN);
 
     Entity.create(CoreId.MAX_VALUE, CoreId.INT);
     Entity.create(CoreId.MIN_VALUE, CoreId.INT);
@@ -194,7 +199,9 @@ Entity._initValues = function() {
 
     Entity.create(CoreId.C_COMMANDED, CoreId.BOOLEAN);
 
-    Entity.create(CoreId.UNIQUE, CoreId.BOOLEAN);
+    var unique = Entity.create(CoreId.UNIQUE, CoreId.BOOLEAN);
+    unique.setValue(CoreId.ACTIVE_PROPERTY, true);
+
 };
 
 Entity.get = function(entityId) {
@@ -312,9 +319,14 @@ Entity._checkValue = function(entity, propertyId, value) {
         value = property.checkValueAsProperty(entity, value);
     }
 
-    // TODO: Check methods in all properties?
-    if (property.hasProperty(CoreId.UNIQUE) && property[CoreId.UNIQUE]) {
-        Entity.get(CoreId.UNIQUE).checkUniqueValue(property, value);
+    var active = Entity.get(CoreId.ACTIVE_PROPERTY);
+    if (active !== undefined) {
+        var activeProperties = active.activeProperties();
+        for (var i=0; i<activeProperties.length; i++) {
+            if (property.hasProperty(activeProperties[i]) && property[activeProperties[i]]) {
+                Entity.get(activeProperties[i]).checkValueAsActiveProperty(property, entity, value);
+            }
+        }
     }
 
     if (entity.checkValueAsEntity !== undefined) {

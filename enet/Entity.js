@@ -102,11 +102,6 @@ Entity.prototype.isMultiple = function() {
     return this.hasProperty(CoreId.MULTIPLE_VALUE) && this[CoreId.MULTIPLE_VALUE];
 };
 
-Entity.prototype.removeProperty = function(property) {
-    property = Entity._getPropertyId(property);
-    delete this[property];
-};
-
 Entity.prototype.contains = function(property, value) {
     property = Entity._getPropertyId(property);
     this._checkPropertyId(property);
@@ -122,20 +117,30 @@ Entity.prototype.contains = function(property, value) {
     return false;
 };
 
+Entity.prototype.removeProperty = function(property) {
+    property = Entity._getPropertyId(property);
+    if (this[property] === undefined || !this.hasOwnProperty(property)) return;
+
+    // TODO Tell to property about it
+    delete this[property];
+};
+
 Entity.prototype.removeValue = function(property, value) {
     property = Entity._getPropertyId(property);
-    if (this[property] === undefined) return;
+    if (this[property] === undefined || !this.hasOwnProperty(property)) return;
 
     if (Array.isArray(this[property]) || this[property] instanceof Array) {
         var toRemoveIndex = this[property].indexOf(value);
         if (toRemoveIndex > -1) {
+            // TODO Tell to value about it
             this[property].splice(toRemoveIndex, 1);
             if (this[property].length === 1) {
                 this[property] = this[property][0];
             }
         }
     } else if (this[property] === value) {
-        delete this[property];
+        // TODO Tell to value about it
+        this.removeProperty(property);
     }
 };
 
@@ -324,7 +329,7 @@ Entity._checkValue = function(entity, propertyId, value) {
         var activeProperties = active.activeProperties();
         for (var i=0; i<activeProperties.length; i++) {
             if (property.hasProperty(activeProperties[i]) && property[activeProperties[i]]) {
-                Entity.get(activeProperties[i]).checkValueAsActiveProperty(property, entity, value);
+                value = Entity.get(activeProperties[i]).checkValueAsActiveProperty(property, entity, value);
             }
         }
     }
@@ -344,6 +349,12 @@ Entity._getPropertyId = function(property) {
         return property.id;
     }
     return property;
+};
+
+Entity.remove = function(entity) {
+    var entityId = Entity._getPropertyId(entity);
+    // TODO: Remove all properties and values
+    delete Entity._entities[entityId];
 };
 
 Entity._initValues();

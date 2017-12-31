@@ -3,7 +3,6 @@ try {
     var chai = require('chai');
     var Entity = require('../enet/Entity');
     var CoreId = require('../enet/CoreId');
-    var EntityError = require('../enet/EntityError');
     var EntityErrorId = require('../enet/EntityErrorId');
 
     var assert = chai.assert;
@@ -27,9 +26,21 @@ describe('Entity network', function() {
                 }
             });
 
-            it('Entity ID', function () {
+            it('Create entity', function () {
                 var card = Entity.create("card", CoreId.ENTITY);
                 assert.equal("card", card.id);
+            });
+
+            it('Remove entity by itself', function () {
+                var card = Entity.create("card", CoreId.ENTITY);
+                Entity.remove(card);
+                assert.isFalse(Entity.contains('card'));
+            });
+
+            it('Remove entity by ID', function () {
+                Entity.create("card", CoreId.ENTITY);
+                Entity.remove('card');
+                assert.isFalse(Entity.contains('card'));
             });
 
             it('Entity parent ID', function () {

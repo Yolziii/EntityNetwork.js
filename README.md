@@ -3,7 +3,10 @@ EntityNetwork.js is a small framework to work with data. You can use it as a Nod
 
 This project is in active development stage, so its API could be chang before I release first version. For now every new version that compatible with previous versions increments third number (Z) of version number X.Y.Z. And versions which not compatible with previous version increments second number (Y).
 
+Documentation isn't finished yet, but you can read unit tests sources to figure it out how this framework works.
+
 In future I'm planning to make plugin for JetBrains products (WebStorm, IDEA, etc.) which will support all framework's features (like values conditions, refactoring, etc.). But I will start to make it after I will realise first version of framework, so if you want to help - please join.
+
 
 ### How to install:
 

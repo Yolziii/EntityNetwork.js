@@ -1,23 +1,35 @@
 # EntityNetwork.js
+EntityNetwork.js is a small framework to work with data. You can use it as a Node.js module and as JS-library in browser. [Here](https://www.npmjs.com/package/entity-network) you can find its code repository. Feel free to ask me any questions by email [yolziii@gmail.com](mailto:yolziii@gmail.com?subject=EntityNetwork.js)
 
-This repository contains source code for npm-package [entity-network](https://www.npmjs.com/package/entity-network).
+This project is in active development stage, so its API could be chang before I release first version. For now every new version that compatible with previous versions increments third number (Z) of version number X.Y.Z. And versions which not comatible with previous version increments second number (Y).
 
-Feel free to ask ay questions to me by email [yolziii@gmail.com](mailto:yolziii@gmail.com?subject=EntityNetwork.js)
+### How to install:
+
+To install it in your Node.js project, use this command:
+```
+npm install entity-network -D
+```
+
+You can find all versions for browser in this [folder of repository](https://github.com/Yolziii/EntityNetwork.js/tree/master/builds).
+Or you can build it by yourself from sources by using this gulp-script:
+```
+gulp --gulpfile gulp_web_deploy.js
+```
+
 
 ## What is EntityNetwork.js?
 
-EntityNetwork.js is a small data-framework. You can use it as a Node.js module and as JS-library in browser. 
 This framework shares two classes: 
 
-### Class Entity
+### Entity
 Use it to directly create entities and find them:
 ```javascript
 var cardEntity = Entity.create('card');
 var intEntity = Entity.get(CoreId.INT);
 ```
 
-### Class EntityLoader
-Inside Node.js module use it to load entities from JSON file or create entities from any object:
+### EntityLoader
+Use this to load entities from JSON file or create entities from any object:
 ```javascript
 var dataObject = JSON.parse(dataJSON);
 EntityLoader.proceedDocumentObject(dataObject);

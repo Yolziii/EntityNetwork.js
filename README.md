@@ -1,7 +1,9 @@
 # EntityNetwork.js
 EntityNetwork.js is a small framework to work with data. You can use it as a Node.js module and as JS-library in browser. [Here](https://www.npmjs.com/package/entity-network) you can find its code repository. Feel free to ask me any questions by email [yolziii@gmail.com](mailto:yolziii@gmail.com?subject=EntityNetwork.js)
 
-This project is in active development stage, so its API could be chang before I release first version. For now every new version that compatible with previous versions increments third number (Z) of version number X.Y.Z. And versions which not comatible with previous version increments second number (Y).
+This project is in active development stage, so its API could be chang before I release first version. For now every new version that compatible with previous versions increments third number (Z) of version number X.Y.Z. And versions which not compatible with previous version increments second number (Y).
+
+In future I'm planning to make plugin for JetBrains products (WebStorm, IDEA, etc.) which will support all framework's features (like values conditions, refactoring, etc.). But I will start to make it after I will realise first version of framework, so if you want to help - please join.
 
 ### How to install:
 

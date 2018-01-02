@@ -245,6 +245,10 @@ Entity.create = function(newEntityId, parentEntityId) {
             for (var prop in implementation) {
                 entity[prop] = implementation[prop];
             }
+
+            if (entity.init !== undefined) {
+                entity.init();
+            }
         }
         entity.id = newEntityId;
         entity.parentId = parentEntityId;

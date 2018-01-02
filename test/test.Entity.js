@@ -747,6 +747,16 @@ describe('Entity network', function() {
                     assert.equal(EntityErrorId.NotUniqueValue, e.id);
                 }
             });
+
+            it('Not unique value 2', function () {
+
+                var protocolId = Entity.create('protocol_id', CoreId.INT);
+                protocolId.setValue(CoreId.UNIQUE, true);
+
+                var state1 = Entity.create('state1', CoreId.ENTITY);
+                state1.setValue(protocolId, 1);
+                assert.equal(1, state1[protocolId.id]);
+            });
         });
 
     });

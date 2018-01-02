@@ -7,7 +7,11 @@ try {
 // import modules#
 
 var Property_Unique = {
-    _values: {},
+    _values: null,
+
+    init: function() {
+        this._values = {};
+    },
 
     checkValueAsActiveProperty: function(property, entity, value) {
         if (this._values[property.id] === undefined) {
@@ -19,6 +23,8 @@ var Property_Unique = {
                 'Value for property "'+property.id+'" must be unique, but value "' + value + '" was already used');
         }
         this._values[property.id].push(value);
+
+        return value;
     }
 };
 

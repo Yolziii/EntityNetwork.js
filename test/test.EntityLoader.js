@@ -39,14 +39,14 @@ const CardId = {
     COUNTERACT: 'counteract'
 };
 
-describe('Entity network', function () {
+describe('EntityLoader', function () {
     before(function () {
         Entity.clear();
         EntityLoader.proceedDocumentObject(dataObject);
         EntityLoader.proceedDocumentObject(dataObject2);
     });
 
-    describe('EntityLoader', function () {
+    describe('Load json', function () {
         it('Card is present', function () {
             assert.isTrue(Entity.contains(CardId.CARD));
         });
@@ -93,5 +93,22 @@ describe('Entity network', function () {
             assert.equal("Абра-кадабра 2", abracadabra.name);
             assert.equal("card_spell", abracadabra.parentId);
         });
+
+
+        it('Batch loading, link from one file to another', function () {
+            var dataOne = {
+                "a": {"is": "b"}
+            };
+
+            var dataTwo = {
+                "b": {}
+            };
+
+            EntityLoader.proceedDocumentsArray([dataOne, dataTwo]);
+            assert.isTrue(Entity.contains('a'));
+            assert.isTrue(Entity.contains('b'));
+            assert.isTrue(Entity.get('a').is('b'));
+        });
+
     });
 });

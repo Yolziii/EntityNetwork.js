@@ -328,7 +328,7 @@ Entity._checkValue = function(entity, propertyId, value) {
         value = property.checkValueAsProperty(entity, value);
     }
 
-    var active = Entity.get(CoreId.ACTIVE_PROPERTY);
+    var active = Entity.get(CoreId.ACTIVE_PROPERTY); // TODO: value_active_property, entity_active_property
     if (active !== undefined) {
         var activeProperties = active.activeProperties();
         for (var i=0; i<activeProperties.length; i++) {

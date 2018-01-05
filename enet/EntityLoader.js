@@ -18,15 +18,32 @@ EntityLoader.proceedJsonDocument = function(dataJson) {
 };
 
 EntityLoader.proceedDocumentObject = function(dataObject) {
+    EntityLoader.proceedDocumentJustEntities(dataObject);
+    EntityLoader.proceedDocumentAllProperties(dataObject);
+};
+
+EntityLoader.proceedDocumentsArray = function(dataObjectsArray) {
+    var i;
+    for (i = 0; i<dataObjectsArray.length; i++) {
+        EntityLoader.proceedDocumentJustEntities(dataObjectsArray[i]);
+    }
+    for (i = 0; i<dataObjectsArray.length; i++) {
+        EntityLoader.proceedDocumentAllProperties(dataObjectsArray[i]);
+    }
+};
+
+EntityLoader.proceedDocumentJustEntities = function(dataObject) {
     for (var entityId in dataObject) { // Make all entities first
         var entityOb = dataObject[entityId];
         var parentEntityId = entityOb.is === undefined ? 'entity' : entityOb.is;
-        if (parentEntityId == null) parentEntityId = undefined;
+        if (parentEntityId === null) parentEntityId = undefined;
         var entity = Entity.contains(entityId)
             ? Entity.get(entityId)
             : Entity.create(entityId, parentEntityId);
     }
+};
 
+EntityLoader.proceedDocumentAllProperties = function(dataObject) {
     for (var entityId in dataObject) { // Then add properties to entities
         var entityOb = dataObject[entityId];
         //if (entityOb.constructor !== undefined) continue;

@@ -26,6 +26,7 @@
   "id": {"is": "string", "single_line": true},
 
   "ability": {"multiple_value":true},
+  "some_ability": {"is": "ability"},
   "counteract": {"is": "ability", "c_commanded": true},
 
   "LightFlash" : {
@@ -48,6 +49,7 @@
     "attack": 2,
     "card_class": "class_wizard",
     "ability": {
+      "is": "some_ability",
       "id": "LightFlash",
       "strong": 5
     }

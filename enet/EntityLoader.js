@@ -12,10 +12,7 @@ try {
 function EntityLoader() {
 }
 
-EntityLoader.proceedJsonDocument = function(dataJson) {
-    var data = JSON.parse(dataJson);
-    EntityLoader.proceedDocumentObject(data);
-};
+EntityLoader._unnamed = 0;
 
 EntityLoader.proceedDocumentObject = function(dataObject) {
     EntityLoader.proceedDocumentJustEntities(dataObject);
@@ -23,6 +20,7 @@ EntityLoader.proceedDocumentObject = function(dataObject) {
 };
 
 EntityLoader.proceedDocumentsArray = function(dataObjectsArray) {
+    EntityLoader._unnamed = 0;
     var i;
     for (i = 0; i<dataObjectsArray.length; i++) {
         EntityLoader.proceedDocumentJustEntities(dataObjectsArray[i]);
@@ -82,11 +80,12 @@ EntityLoader._proceedValue = function(entity, propertyId, value, isMultiple) {
         return;
     }
 
-    if (typeof value === 'object' || value instanceof Object && value.id !== undefined) {
+    if (typeof value === 'object' || value instanceof Object && (value.id !== undefined || value['is'] !== undefined)) {
         var subEntityObj = value;
-        var subEntity = Entity.contains(subEntityObj.id)
-            ? Entity.get(subEntityObj.id)
-            : Entity.create(subEntityObj.id, propertyId);
+        var parent = (subEntityObj['is'] !== undefined) ? subEntityObj['is'] : propertyId
+        var id = (value.id !== undefined) ? value.id : parent + '#' + (++EntityLoader._unnamed);
+
+        var subEntity = Entity.create(id, parent); // If it already exists, then just change the parent
 
         EntityLoader._proceedProperties(subEntity, subEntityObj);
 

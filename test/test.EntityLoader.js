@@ -77,6 +77,7 @@ describe('EntityLoader', function () {
         it('Change parent for inline entity', function () {
             var lightFlash = Entity.get(CardId.ABILITY_LIGHT_FLASH);
             assert.isTrue(lightFlash.is('some_ability'));
+            assert.equal(5, lightFlash.strong);
         });
 
         it('Thor has 2 abilities', function () {

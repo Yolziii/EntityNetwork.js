@@ -20,6 +20,7 @@ const jsmin = require('gulp-jsmin');
 var source = './enet';
 var tests = './test';
 var destination = './web_deploy';
+var builds = './builds';
 
 var package = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 var libraryFile = 'entity-network-'+package.version+'.js';
@@ -72,6 +73,11 @@ gulp.task('processHtml', ['copySources'], function() {
         //.pipe(gulp.dest(path.join(destination, '/test.html')));
 });
 
-gulp.task('default', ['processHtml'],  function() {
+gulp.task('copytoBuilds', ['processHtml'], function() {
+    return gulp.src(path.join(destination, libraryFile))
+        .pipe(gulp.dest(builds));
+});
+
+gulp.task('default', ['copytoBuilds'],  function() {
 
 });

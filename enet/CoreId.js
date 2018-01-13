@@ -20,7 +20,9 @@ const CoreId = {
     REGEXP: 'regexp',
 
     UNIQUE: 'unique',
-    ACTIVE_PROPERTY: 'active_property'
+    ACTIVE_PROPERTY: 'active_property',
+
+    COPY_FOR_CHILDREN: 'copy_for_children'
 };
 
 // #Node.js

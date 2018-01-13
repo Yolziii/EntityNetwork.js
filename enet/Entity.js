@@ -4,6 +4,7 @@
 // #import modules
 try {
     var CoreId = require('./CoreId.js');
+    //var EntityLoader = require('./EntityLoader');
     var EntityError = require('./EntityError');
     var EntityErrorId = require('./EntityErrorId');
 
@@ -21,7 +22,7 @@ try {
 //========================================================================================================================================================================
 // Object members
 //========================================================================================================================================================================
-function Entity() { }
+function Entity() {}
 
 Entity.prototype.is = function(parentEntityId) {
     var parent = parentEntityId;
@@ -51,22 +52,26 @@ Entity.prototype.isFor = function(childEntityId) {
     }
 };
 
-Entity.prototype.setValue = function(property, value) {
-    var propertyId = Entity._getPropertyId(property);
-    property = Entity.get(propertyId);
+
+
+Entity.prototype.setValue = function(propertyOrPropertyId, value) {
+    var propertyId = Entity._getPropertyId(propertyOrPropertyId);
+    var property = Entity.get(propertyId);
     if (property.isMultiple()) {
         this.addValue(property, value);
     } else {
         value = Entity._checkValue(this, propertyId, value);
         this[propertyId] = value;
     }
+
+    this._checkCopiedProperty(property);
 };
 
-Entity.prototype.addValue = function(property, value) {
-    var propertyId = Entity._getPropertyId(property);
+Entity.prototype.addValue = function(propertyOrPropertyId, value) {
+    var propertyId = Entity._getPropertyId(propertyOrPropertyId);
     value = Entity._checkValue(this, propertyId, value);
 
-    property = Entity.get(propertyId);
+    var property = Entity.get(propertyId);
     if (!property.isMultiple()) {
         throw new EntityError(
             EntityErrorId.NotMultiple,
@@ -85,7 +90,11 @@ Entity.prototype.addValue = function(property, value) {
             this[propertyId] = [value];
         }
     }
+
+    this._checkCopiedProperty(property);
 };
+
+
 
 Entity.prototype.getValue = function(property) {
     property = Entity._getPropertyId(property);
@@ -153,6 +162,37 @@ Entity.prototype._checkPropertyId = function(propertyID) {
 };
 
 
+Entity.prototype.hasCopiedProperties = function() {
+    return this.hasOwnProperty('_copiedProperties') && this._copiedProperties.length > 0;
+};
+
+Entity.prototype.copyCopiedPropertiesToChildren = function() {
+    if (!this.hasOwnProperty('_children')) return;
+
+    for(var p = 0; p < this._copiedProperties.length; p++) {
+        for (var c = 0; c < this._children.length; c++) {
+            var copiedProperty = this._copiedProperties[p];
+            var child = this._children[c];
+            child.setValue(copiedProperty, this[copiedProperty.id]);
+        }
+    }
+};
+
+Entity.prototype._checkCopiedProperty = function(property) {
+    if (property.hasOwnProperty(CoreId.COPY_FOR_CHILDREN)) {
+        if (!this.hasOwnProperty('_copiedProperties')) {
+            this._copiedProperties = [];
+        }
+
+        if (this._copiedProperties.indexOf(property) === -1) {
+            this._copiedProperties.push(property);
+            this.copyCopiedPropertiesToChildren();
+        }
+    }
+};
+
+
+
 //========================================================================================================================================================================
 // "Static" members
 //========================================================================================================================================================================
@@ -180,8 +220,33 @@ Entity._initValues = function() {
     Entity.defineImplementationForEntity(CoreId.UNIQUE, Property_Unique);
     Entity.defineImplementationForEntity(CoreId.ACTIVE_PROPERTY, Property_ActiveProperty);
 
-    // TODO: Load from core.json?
     var entity = Entity.create(CoreId.ENTITY, null);
+    /*EntityLoader.proceedDocumentObject({
+        datatype: {},
+        bool: {is: CoreId.DATA_TYPE},
+        int: {is: CoreId.DATA_TYPE},
+        float: {is: CoreId.DATA_TYPE},
+        string: {is: CoreId.DATA_TYPE},
+
+        active_property: {is: CoreId.BOOLEAN},
+
+        max_value: {is: CoreId.INT},
+        min_value: {is: CoreId.INT},
+        max_length: {is: CoreId.INT},
+        min_length: {is: CoreId.INT},
+
+        single_line: {is: CoreId.BOOLEAN},
+        multiple_value: {is: CoreId.BOOLEAN},
+        expand_value: {is: CoreId.BOOLEAN},
+
+        c_commanded: {is: CoreId.BOOLEAN},
+
+        regexp: {is: CoreId.STRING, single_line: true},
+
+        // TODO: Scenarios with children
+        unique: {is: CoreId.BOOLEAN, active_property: true}
+    });*/
+
     var dataType = Entity.create(CoreId.DATA_TYPE, entity);
     Entity.create(CoreId.BOOLEAN, dataType);
     Entity.create(CoreId.INT, dataType);
@@ -204,8 +269,11 @@ Entity._initValues = function() {
 
     Entity.create(CoreId.C_COMMANDED, CoreId.BOOLEAN);
 
+    // TODO: Scenarios with children
     var unique = Entity.create(CoreId.UNIQUE, CoreId.BOOLEAN);
     unique.setValue(CoreId.ACTIVE_PROPERTY, true);
+
+    var copyForChildren = Entity.create(CoreId.COPY_FOR_CHILDREN, CoreId.BOOLEAN);
 
 };
 
@@ -234,9 +302,8 @@ Entity.create = function(newEntityId, parentEntityId) {
         Entity.create(parentEntityId);
     }
 
+    var entity;
     if (Entity._entities[newEntityId] === undefined) {
-        var entity;
-
         if (parentEntityId === null) {
             entity = new Entity(newEntityId, parentEntityId);
         } else {
@@ -255,7 +322,20 @@ Entity.create = function(newEntityId, parentEntityId) {
 
         Entity._entities[newEntityId] = entity;
     } else {
-        Entity._entities[newEntityId].parentId = parentEntityId;
+        entity = Entity._entities[newEntityId];
+        entity.parentId = parentEntityId;
+    }
+
+    var parent = Entity._entities[parentEntityId];
+    if (parent !== undefined) {
+        if (!parent.hasOwnProperty('_children')) {
+            parent._children = [];
+        }
+        parent._children.push(entity);
+
+        if (parent.hasCopiedProperties()) {
+            parent.copyCopiedPropertiesToChildren();
+        }
     }
 
     return Entity._entities[newEntityId];
@@ -355,8 +435,19 @@ Entity._getPropertyId = function(property) {
     return property;
 };
 
-Entity.remove = function(entity) {
-    var entityId = Entity._getPropertyId(entity);
+Entity.remove = function(entityOrEntityId) {
+    var entityId = Entity._getPropertyId(entityOrEntityId);
+
+    var entity = Entity._entities[entityId];
+    parent = Entity.get(entity.parentId);
+    var index = parent._children.indexOf(entity);
+    if (index > -1) {
+        parent._children.splice(index, 1);
+        if (parent._children.length === 0) {
+            delete parent._children;
+        }
+    }
+
     // TODO: Remove all properties and values
     delete Entity._entities[entityId];
 };

@@ -114,6 +114,27 @@ describe('Entity network', function() {
                 assert.isTrue(warrior.is(card));
                 assert.equal(CoreId.ENTITY, card.parentId);
             });
+
+            it('Parent knows his children', function () {
+                var parent = Entity.create('parent', CoreId.ENTITY);
+                var child1 = Entity.create("child1", parent);
+                var child2 = Entity.create("child2", parent);
+
+                assert.equal(2, parent._children.length);
+                assert.equal(child1, parent._children[0]);
+                assert.equal(child2, parent._children[1]);
+            });
+
+            it('Parent forget removed child', function () {
+                var parent = Entity.create('parent', CoreId.ENTITY);
+                var child1 = Entity.create("child1", parent);
+                var child2 = Entity.create("child2", parent);
+
+                Entity.remove(child1);
+
+                assert.equal(1, parent._children.length);
+                assert.equal(child2, parent._children[0]);
+            });
         });
 
         describe('Properties and values', function() {
@@ -759,5 +780,37 @@ describe('Entity network', function() {
             });
         });
 
+        describe('Copied properties', function() {
+            it('Copy property for children (while create child)', function () {
+                var copiedProperty = Entity.create('copied property', CoreId.INT);
+                copiedProperty.setValue(CoreId.COPY_FOR_CHILDREN, true);
+
+                var parent = Entity.create('parent', CoreId.ENTITY);
+                assert.isFalse(parent.hasCopiedProperties());
+
+                parent.setValue(copiedProperty, 5);
+                assert.isTrue(parent.hasCopiedProperties()); // Every entity knows if it has properties that need to be copied for its children
+
+                var child = Entity.create('children', parent); // 5 must be copied to child
+                parent.setValue(copiedProperty, 3); // Change value in parent to 3
+
+                assert.equal(5, child[copiedProperty.id]);
+                assert.equal(3, parent[copiedProperty.id]);
+            });
+
+            it('Copy property for children (while add property)', function () {
+                var copiedProperty = Entity.create('copied property', CoreId.INT);
+                copiedProperty.setValue(CoreId.COPY_FOR_CHILDREN, true);
+
+                var parent = Entity.create('parent', CoreId.ENTITY);
+                var child = Entity.create('children', parent);
+
+                parent.setValue(copiedProperty, 5); // 5 must be copied to child
+                parent.setValue(copiedProperty, 3); // Change value in parent to 3
+
+                assert.equal(5, child[copiedProperty.id]);
+                assert.equal(3, parent[copiedProperty.id]);
+            });
+        });
     });
 });

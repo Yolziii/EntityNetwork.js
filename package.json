@@ -1,6 +1,6 @@
 {
   "name": "entity-network",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "This package implements entity network paradigm to work with data",
   "main": "index.js",
   "scripts": {

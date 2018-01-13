@@ -96,10 +96,10 @@ Entity.prototype.addValue = function(propertyOrPropertyId, value) {
 
 
 
-Entity.prototype.getValue = function(property) {
-    property = Entity._getPropertyId(property);
-    this._checkPropertyId(property);
-    return this[property];
+Entity.prototype.getValue = function(propertyOrId) {
+    var propertyId = Entity._getPropertyId(propertyOrId);
+    this._checkPropertyId(propertyId);
+    return this[propertyId];
 };
 
 Entity.prototype.hasProperty = function(property) {
@@ -161,7 +161,6 @@ Entity.prototype._checkPropertyId = function(propertyID) {
     }
 };
 
-
 Entity.prototype.hasCopiedProperties = function() {
     return this.hasOwnProperty('_copiedProperties') && this._copiedProperties.length > 0;
 };
@@ -169,11 +168,21 @@ Entity.prototype.hasCopiedProperties = function() {
 Entity.prototype.copyCopiedPropertiesToChildren = function() {
     if (!this.hasOwnProperty('_children')) return;
 
-    for(var p = 0; p < this._copiedProperties.length; p++) {
+    for (var p = 0; p < this._copiedProperties.length; p++) {
         for (var c = 0; c < this._children.length; c++) {
             var copiedProperty = this._copiedProperties[p];
             var child = this._children[c];
-            child.setValue(copiedProperty, this[copiedProperty.id]);
+
+            if (child.hasOwnProperty(copiedProperty.id)) continue;
+
+            if (copiedProperty.isMultiple()) {
+                for (var i=0; i<this[copiedProperty.id].length; i++) {
+                    child.setValue(copiedProperty, this[copiedProperty.id][i]);
+                }
+            } else {
+                child.setValue(copiedProperty, this[copiedProperty.id]);
+            }
+
         }
     }
 };
@@ -191,7 +200,7 @@ Entity.prototype._checkCopiedProperty = function(property) {
     }
 };
 
-
+// TODO: isEntityProperty(name)
 
 //========================================================================================================================================================================
 // "Static" members

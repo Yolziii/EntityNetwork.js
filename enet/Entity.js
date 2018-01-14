@@ -61,8 +61,6 @@ Entity.prototype.setValue = function(propertyOrId, value) {
         value = Entity._proceedValue(this, propertyId, value);
         this[propertyId] = value;
     }
-
-    this._checkCopiedProperty(property);
 };
 
 Entity.prototype.addValue = function(propertyOrId, value) {
@@ -88,8 +86,6 @@ Entity.prototype.addValue = function(propertyOrId, value) {
             this[propertyId] = [value];
         }
     }
-
-    this._checkCopiedProperty(property);
 };
 
 Entity.prototype.getValue = function(propertyOrId) {
@@ -157,63 +153,6 @@ Entity.prototype._checkPropertyId = function(propertyID) {
     }
 };
 
-Entity.prototype.hasCopiedProperties = function() {
-    return this.hasOwnProperty('_copiedProperties') && this._copiedProperties.length > 0;
-};
-
-Entity.prototype.copyCopiedPropertiesToChildren = function() {
-    if (!this.hasOwnProperty('_children')) return;
-
-    for (var p = 0; p < this._copiedProperties.length; p++) {
-        var copiedProperty = this._copiedProperties[p];
-
-        for (var c = 0; c < this._children.length; c++) {
-            var child = this._children[c];
-            if (child.hasOwnProperty(copiedProperty.id)) continue;
-
-            if (copiedProperty.isMultiple()) {
-                for (var v=0; v<this[copiedProperty.id].length; v++) {
-                    var value = this._copyValue(this[copiedProperty.id][v]);
-                    child.setValue(copiedProperty, value);
-                }
-            } else {
-                var value = this._copyValue(this[copiedProperty.id]);
-                child.setValue(copiedProperty, value);
-            }
-        }
-    }
-};
-
-Entity.prototype._copyValue = function(value) {
-    if (!(typeof value === 'object' || value instanceof Object) || value === null) {
-        return value;
-    }
-
-    var newValue = Entity.create(value.id + "&" + (Entity._copied++), value);
-
-    for (var propertyId in value) {
-        if (!value.hasOwnProperty(propertyId)) continue;
-        if (!value.isEntityId(propertyId)) continue;
-
-        newValue.setValue(propertyId, value[propertyId]);
-    }
-
-    return newValue;
-};
-
-Entity.prototype._checkCopiedProperty = function(property) {
-    if (!property.hasOwnProperty(CoreId.COPY_PROPERTY_FOR_CHILDREN)) return;
-
-    if (!this.hasOwnProperty('_copiedProperties')) {
-        this._copiedProperties = [];
-    }
-
-    if (this._copiedProperties.indexOf(property) === -1) {
-        this._copiedProperties.push(property);
-        if (Entity.copyValues) this.copyCopiedPropertiesToChildren();
-    }
-};
-
 Entity.prototype.isEntityId = function(name) {
     if (typeof this[name] === 'function' || this[name] instanceof Function) return false;
     if (name.indexOf('_') === 0) return false;
@@ -250,13 +189,6 @@ Entity.prototype._cloneValue = function(value) {
 
     var newValue = Entity.create(value.id + "&" + (Entity._copied++), value);
     value._cloneValuesTo(newValue);
-    /*for (var propertyId in value) {
-        if (!value.hasOwnProperty(propertyId)) continue;
-        if (!value.isEntityId(propertyId)) continue;
-
-
-        newValue.setValue(propertyId, value[propertyId]);
-    }*/
 
     return newValue;
 };
@@ -343,8 +275,6 @@ Entity._initValues = function() {
     var unique = Entity.create(CoreId.UNIQUE, CoreId.BOOLEAN);
     unique.setValue(CoreId.ACTIVE_PROPERTY, true);
 
-    Entity.create(CoreId.COPY_PROPERTY_FOR_CHILDREN, CoreId.BOOLEAN);
-
     Entity.create(CoreId.CLONE_VALUES_FOR_CHILDREN, CoreId.BOOLEAN);
     Entity.create(CoreId.INHERIT_CLONED_VALUES, CoreId.BOOLEAN);
 
@@ -401,17 +331,8 @@ Entity.create = function(newEntityId, parentEntityOrId) {
 
     var parent = Entity._entities[parentEntityId];
     if (parent !== undefined) {
-        if (!parent.hasOwnProperty('_children')) {
-            parent._children = [];
-        }
-        parent._children.push(entity);
-
         if (parent.hasProperty(CoreId.CLONE_VALUES_FOR_CHILDREN)) {
             parent._cloneValuesTo(entity);
-        }
-
-        if (parent.hasCopiedProperties()) {
-            parent.copyCopiedPropertiesToChildren();
         }
     }
 
@@ -514,16 +435,6 @@ Entity._getPropertyId = function(propertyOrId) {
 
 Entity.remove = function(entityOrId) {
     var entityId = Entity._getPropertyId(entityOrId);
-
-    var entity = Entity._entities[entityId];
-    parent = Entity.get(entity.parentId);
-    var index = parent._children.indexOf(entity);
-    if (index > -1) {
-        parent._children.splice(index, 1);
-        if (parent._children.length === 0) {
-            delete parent._children;
-        }
-    }
 
     // TODO: Remove all properties and values
     delete Entity._entities[entityId];

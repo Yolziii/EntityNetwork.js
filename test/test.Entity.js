@@ -525,7 +525,7 @@ describe('Entity network', function() {
                 }
             });
 
-            it('Class for for class-property', function () {
+            it('Class for class-property', function () {
                 var card = Entity.create("card", CoreId.ENTITY);
                 var cardClass = Entity.create("card-class", CoreId.ENTITY);
                 var classWarrior = Entity.create("class-warrior", cardClass);
@@ -782,8 +782,9 @@ describe('Entity network', function() {
 
         describe('Copied properties', function() {
             it('Copy property for children (while create child)', function () {
+                Entity.copyValues = true;
                 var copiedProperty = Entity.create('copied property', CoreId.INT);
-                copiedProperty.setValue(CoreId.COPY_FOR_CHILDREN, true);
+                copiedProperty.setValue(CoreId.COPY_PROPERTY_FOR_CHILDREN, true);
 
                 var parent = Entity.create('parent', CoreId.ENTITY);
                 assert.isFalse(parent.hasCopiedProperties());
@@ -799,8 +800,9 @@ describe('Entity network', function() {
             });
 
             it('Copy property for children (while add property)', function () {
+                Entity.copyValues = true;
                 var copiedProperty = Entity.create('copied property', CoreId.INT);
-                copiedProperty.setValue(CoreId.COPY_FOR_CHILDREN, true);
+                copiedProperty.setValue(CoreId.COPY_PROPERTY_FOR_CHILDREN, true);
 
                 var parent = Entity.create('parent', CoreId.ENTITY);
                 var child = Entity.create('child', parent);
@@ -813,8 +815,9 @@ describe('Entity network', function() {
             });
 
             it('Copy multiple property', function () {
+                Entity.copyValues = true;
                 var copiedProperty = Entity.create('copied property', CoreId.INT);
-                copiedProperty.setValue(CoreId.COPY_FOR_CHILDREN, true);
+                copiedProperty.setValue(CoreId.COPY_PROPERTY_FOR_CHILDREN, true);
                 copiedProperty.setValue(CoreId.MULTIPLE_VALUE, true);
 
                 var parent = Entity.create('parent', CoreId.ENTITY);
@@ -829,8 +832,9 @@ describe('Entity network', function() {
             });
 
             it('Copy property for children (while create child)', function () {
+                Entity.copyValues = true;
                 var copiedProperty = Entity.create('copied property', CoreId.INT);
-                copiedProperty.setValue(CoreId.COPY_FOR_CHILDREN, true);
+                copiedProperty.setValue(CoreId.COPY_PROPERTY_FOR_CHILDREN, true);
 
                 var parent = Entity.create('parent', CoreId.ENTITY);
                 parent.setValue(copiedProperty, 5);
@@ -843,6 +847,88 @@ describe('Entity network', function() {
                 assert.equal(5, parent[copiedProperty.id]);
                 assert.equal(3, child1[copiedProperty.id]);
                 assert.equal(5, child2[copiedProperty.id]);
+            });
+
+            it('Copy hierarchy', function () {
+                Entity.copyValues = true;
+                var copiedProperty = Entity.create('copied property', CoreId.INT);
+                copiedProperty.setValue(CoreId.COPY_PROPERTY_FOR_CHILDREN, true);
+                var parentOwner = Entity.create('parent copied', CoreId.ENTITY);
+                parentOwner.setValue(CoreId.COPY_PROPERTY_FOR_CHILDREN, true);
+                parentOwner.setValue(copiedProperty, 5);
+
+                var copiedValue = Entity.create('child copied', parentOwner);
+
+                var parent = Entity.create('parent', CoreId.ENTITY);
+                parent.setValue(parentOwner, copiedValue);
+
+                var child = Entity.create('child', parent); // Copied value must ve cloned
+                parent[parentOwner.id][copiedProperty.id] = 3;
+
+                assert.equal(3, parent[parentOwner.id][copiedProperty.id]);
+                assert.equal(5, child[parentOwner.id][copiedProperty.id]);
+            });
+        });
+
+        describe('Cloning entities', function() {
+            it('Clone simple properties', function () {
+                var simpleProperty = Entity.create('simple property', CoreId.INT);
+
+                var clonedEntity = Entity.create('cloned entity', CoreId.ENTITY);
+                clonedEntity.setValue(CoreId.CLONE_VALUES_FOR_CHILDREN, true);
+                clonedEntity.setValue(simpleProperty, 1);
+
+                var clonedChild = Entity.create('cloned child', clonedEntity); // value 1 of simple property must be cloned to child
+                clonedEntity.setValue(simpleProperty, 2);
+
+                assert.equal(2, clonedEntity[simpleProperty.id]);
+                assert.equal(1, clonedChild[simpleProperty.id]);
+            });
+
+            it('Clone simple multiple properties', function () {
+                var simpleProperty = Entity.create('simple property', CoreId.INT);
+                simpleProperty.setValue(CoreId.MULTIPLE_VALUE, true);
+
+                var clonedEntity = Entity.create('cloned entity', CoreId.ENTITY);
+                clonedEntity.setValue(CoreId.CLONE_VALUES_FOR_CHILDREN, true);
+                clonedEntity.setValue(simpleProperty, 1);
+
+                var clonedChild = Entity.create('cloned child', clonedEntity);
+                clonedEntity.removeValue(simpleProperty, 1);
+                clonedEntity.setValue(simpleProperty, 2);
+
+                assert.equal(2, clonedEntity[simpleProperty.id][0]);
+                assert.equal(1, clonedChild[simpleProperty.id][0]);
+            });
+
+            it('Clone entity properties', function () {
+                var simpleProperty = Entity.create('simple property', CoreId.ENTITY);
+                var simpleValue1 = Entity.create('simpleValue1', simpleProperty);
+                var simpleValue2 = Entity.create('simpleValue2', simpleProperty);
+
+                var clonedEntity = Entity.create('cloned entity', CoreId.ENTITY);
+                clonedEntity.setValue(CoreId.CLONE_VALUES_FOR_CHILDREN, true);
+                clonedEntity.setValue(simpleProperty, simpleValue1);
+
+                var clonedChild = Entity.create('cloned child', clonedEntity);
+                clonedEntity.setValue(simpleProperty, simpleValue2);
+
+                assert.equal(simpleValue2, clonedEntity[simpleProperty.id]);
+                assert.equal(simpleValue1, clonedChild[simpleProperty.id]);
+            });
+
+            it('Copy cloned entity values', function () {
+                var simpleProperty = Entity.create('simple property', CoreId.ENTITY);
+                var simpleValue = Entity.create('simpleValue', simpleProperty);
+
+                var clonedEntity = Entity.create('cloned entity', CoreId.ENTITY);
+                clonedEntity.setValue(CoreId.CLONE_VALUES_FOR_CHILDREN, true);
+                clonedEntity.setValue(CoreId.INHERIT_CLONED_VALUES, true);
+                clonedEntity.setValue(simpleProperty, simpleValue);
+
+                var clonedChild = Entity.create('cloned child', clonedEntity);
+
+                assert.isTrue(simpleValue.id !== clonedChild[simpleProperty.id].id);
             });
         });
     });

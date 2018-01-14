@@ -24,10 +24,10 @@ try {
 //========================================================================================================================================================================
 function Entity() {}
 
-Entity.prototype.is = function(parentEntityId) {
-    var parent = parentEntityId;
+Entity.prototype.is = function(entityOrId) {
+    var parent = entityOrId;
     if (typeof parent === 'string' || parent instanceof String) {
-        parent = Entity._entities[parentEntityId];
+        parent = Entity._entities[entityOrId];
     }
 
     var me = this;
@@ -38,10 +38,10 @@ Entity.prototype.is = function(parentEntityId) {
     }
 };
 
-Entity.prototype.isFor = function(childEntityId) {
-    var child = childEntityId;
+Entity.prototype.isFor = function(entityOrId) {
+    var child = entityOrId;
     if (typeof child === 'string' || child instanceof String) {
-        child = Entity._entities[childEntityId];
+        child = Entity._entities[entityOrId];
     }
 
     var me = this;
@@ -52,24 +52,22 @@ Entity.prototype.isFor = function(childEntityId) {
     }
 };
 
-
-
-Entity.prototype.setValue = function(propertyOrPropertyId, value) {
-    var propertyId = Entity._getPropertyId(propertyOrPropertyId);
+Entity.prototype.setValue = function(propertyOrId, value) {
+    var propertyId = Entity._getPropertyId(propertyOrId);
     var property = Entity.get(propertyId);
     if (property.isMultiple()) {
         this.addValue(property, value);
     } else {
-        value = Entity._checkValue(this, propertyId, value);
+        value = Entity._proceedValue(this, propertyId, value);
         this[propertyId] = value;
     }
 
     this._checkCopiedProperty(property);
 };
 
-Entity.prototype.addValue = function(propertyOrPropertyId, value) {
-    var propertyId = Entity._getPropertyId(propertyOrPropertyId);
-    value = Entity._checkValue(this, propertyId, value);
+Entity.prototype.addValue = function(propertyOrId, value) {
+    var propertyId = Entity._getPropertyId(propertyOrId);
+    value = Entity._proceedValue(this, propertyId, value);
 
     var property = Entity.get(propertyId);
     if (!property.isMultiple()) {
@@ -94,62 +92,60 @@ Entity.prototype.addValue = function(propertyOrPropertyId, value) {
     this._checkCopiedProperty(property);
 };
 
-
-
 Entity.prototype.getValue = function(propertyOrId) {
     var propertyId = Entity._getPropertyId(propertyOrId);
     this._checkPropertyId(propertyId);
     return this[propertyId];
 };
 
-Entity.prototype.hasProperty = function(property) {
-    property = Entity._getPropertyId(property);
-    return this[property] !== undefined;
+Entity.prototype.hasProperty = function(propertyOrId) {
+    var propertyId = Entity._getPropertyId(propertyOrId);
+    return this[propertyId] !== undefined;
 };
 
 Entity.prototype.isMultiple = function() {
     return this.hasProperty(CoreId.MULTIPLE_VALUE) && this[CoreId.MULTIPLE_VALUE];
 };
 
-Entity.prototype.contains = function(property, value) {
-    property = Entity._getPropertyId(property);
-    this._checkPropertyId(property);
+Entity.prototype.contains = function(propertyOrId, value) {
+    var propertyId = Entity._getPropertyId(propertyOrId);
+    this._checkPropertyId(propertyId);
 
-    if (Array.isArray(this[property]) || this[property] instanceof Array) {
-        var toRemoveIndex = this[property].indexOf(value);
+    if (Array.isArray(this[propertyId]) || this[propertyId] instanceof Array) {
+        var toRemoveIndex = this[propertyId].indexOf(value);
         if (toRemoveIndex > -1) {
             return true;
         }
-    } else if (this[property] === value) {
+    } else if (this[propertyId] === value) {
         return true;
     }
     return false;
 };
 
-Entity.prototype.removeProperty = function(property) {
-    property = Entity._getPropertyId(property);
-    if (this[property] === undefined || !this.hasOwnProperty(property)) return;
+Entity.prototype.removeProperty = function(propertyOrId) {
+    var propertyId = Entity._getPropertyId(propertyOrId);
+    if (this[propertyId] === undefined || !this.hasOwnProperty(propertyId)) return;
 
     // TODO Tell to property about it
-    delete this[property];
+    delete this[propertyId];
 };
 
-Entity.prototype.removeValue = function(property, value) {
-    property = Entity._getPropertyId(property);
-    if (this[property] === undefined || !this.hasOwnProperty(property)) return;
+Entity.prototype.removeValue = function(propertyOrId, value) {
+    var propertyId = Entity._getPropertyId(propertyOrId);
+    if (this[propertyId] === undefined || !this.hasOwnProperty(propertyId)) return;
 
-    if (Array.isArray(this[property]) || this[property] instanceof Array) {
-        var toRemoveIndex = this[property].indexOf(value);
+    if (Array.isArray(this[propertyId]) || this[propertyId] instanceof Array) {
+        var toRemoveIndex = this[propertyId].indexOf(value);
         if (toRemoveIndex > -1) {
             // TODO Tell to value about it
-            this[property].splice(toRemoveIndex, 1);
-            if (this[property].length === 1) {
-                this[property] = this[property][0];
+            this[propertyId].splice(toRemoveIndex, 1);
+            if (this[propertyId].length === 1) {
+                this[propertyId] = this[propertyId][0];
             }
         }
-    } else if (this[property] === value) {
+    } else if (this[propertyId] === value) {
         // TODO Tell to value about it
-        this.removeProperty(property);
+        this.removeProperty(propertyId);
     }
 };
 
@@ -169,49 +165,114 @@ Entity.prototype.copyCopiedPropertiesToChildren = function() {
     if (!this.hasOwnProperty('_children')) return;
 
     for (var p = 0; p < this._copiedProperties.length; p++) {
-        for (var c = 0; c < this._children.length; c++) {
-            var copiedProperty = this._copiedProperties[p];
-            var child = this._children[c];
+        var copiedProperty = this._copiedProperties[p];
 
+        for (var c = 0; c < this._children.length; c++) {
+            var child = this._children[c];
             if (child.hasOwnProperty(copiedProperty.id)) continue;
 
             if (copiedProperty.isMultiple()) {
-                for (var i=0; i<this[copiedProperty.id].length; i++) {
-                    child.setValue(copiedProperty, this[copiedProperty.id][i]);
+                for (var v=0; v<this[copiedProperty.id].length; v++) {
+                    var value = this._copyValue(this[copiedProperty.id][v]);
+                    child.setValue(copiedProperty, value);
                 }
             } else {
-                child.setValue(copiedProperty, this[copiedProperty.id]);
+                var value = this._copyValue(this[copiedProperty.id]);
+                child.setValue(copiedProperty, value);
             }
-
         }
     }
+};
+
+Entity.prototype._copyValue = function(value) {
+    if (!(typeof value === 'object' || value instanceof Object) || value === null) {
+        return value;
+    }
+
+    var newValue = Entity.create(value.id + "&" + (Entity._copied++), value);
+
+    for (var propertyId in value) {
+        if (!value.hasOwnProperty(propertyId)) continue;
+        if (!value.isEntityId(propertyId)) continue;
+
+        newValue.setValue(propertyId, value[propertyId]);
+    }
+
+    return newValue;
 };
 
 Entity.prototype._checkCopiedProperty = function(property) {
-    if (property.hasOwnProperty(CoreId.COPY_FOR_CHILDREN)) {
-        if (!this.hasOwnProperty('_copiedProperties')) {
-            this._copiedProperties = [];
-        }
+    if (!property.hasOwnProperty(CoreId.COPY_PROPERTY_FOR_CHILDREN)) return;
 
-        if (this._copiedProperties.indexOf(property) === -1) {
-            this._copiedProperties.push(property);
-            this.copyCopiedPropertiesToChildren();
+    if (!this.hasOwnProperty('_copiedProperties')) {
+        this._copiedProperties = [];
+    }
+
+    if (this._copiedProperties.indexOf(property) === -1) {
+        this._copiedProperties.push(property);
+        if (Entity.copyValues) this.copyCopiedPropertiesToChildren();
+    }
+};
+
+Entity.prototype.isEntityId = function(name) {
+    if (typeof this[name] === 'function' || this[name] instanceof Function) return false;
+    if (name.indexOf('_') === 0) return false;
+    if (name === 'id' || name === 'parentId') return false;
+    if (!Entity.contains(name)) return false;
+
+    return true;
+};
+
+Entity.prototype._cloneValuesTo = function(child) {
+    for (var propertyId in this) {
+        if (!this.isEntityId(propertyId)) continue;
+        var property = Entity.get(propertyId);
+        // TODO: Do not clone CoreId properties
+
+        if (property.isMultiple() && this[propertyId] != null) {
+            for (var v=0; v<this[propertyId].length; v++) {
+                var value = this._cloneValue(this[propertyId][v]);
+                child.addValue(propertyId, value);
+            }
+        } else {
+            var value = this._cloneValue(this[propertyId]);
+            child.setValue(propertyId, value);
         }
     }
 };
 
-// TODO: isEntityProperty(name)
+Entity.prototype._cloneValue = function(value) {
+    if (!(typeof value === 'object' || value instanceof Object) || value === null) {
+        return value;
+    }
+
+    if (!this.hasProperty(CoreId.INHERIT_CLONED_VALUES) || !this[CoreId.INHERIT_CLONED_VALUES]) return value;
+
+    var newValue = Entity.create(value.id + "&" + (Entity._copied++), value);
+    value._cloneValuesTo(newValue);
+    /*for (var propertyId in value) {
+        if (!value.hasOwnProperty(propertyId)) continue;
+        if (!value.isEntityId(propertyId)) continue;
+
+
+        newValue.setValue(propertyId, value[propertyId]);
+    }*/
+
+    return newValue;
+};
 
 //========================================================================================================================================================================
 // "Static" members
 //========================================================================================================================================================================
 Entity._entities = {};
-
 Entity._implementations = {};
+Entity._copied = 0;
+Entity.copyValues = false;
 
 Entity.clear = function() {
     Entity._entities = {};
     Entity._implementations = {};
+    Entity._copied = 0;
 
     Entity._initValues();
 };
@@ -278,16 +339,19 @@ Entity._initValues = function() {
 
     Entity.create(CoreId.C_COMMANDED, CoreId.BOOLEAN);
 
-    // TODO: Scenarios with children
+    // TODO: Scenarios with children?
     var unique = Entity.create(CoreId.UNIQUE, CoreId.BOOLEAN);
     unique.setValue(CoreId.ACTIVE_PROPERTY, true);
 
-    var copyForChildren = Entity.create(CoreId.COPY_FOR_CHILDREN, CoreId.BOOLEAN);
+    Entity.create(CoreId.COPY_PROPERTY_FOR_CHILDREN, CoreId.BOOLEAN);
+
+    Entity.create(CoreId.CLONE_VALUES_FOR_CHILDREN, CoreId.BOOLEAN);
+    Entity.create(CoreId.INHERIT_CLONED_VALUES, CoreId.BOOLEAN);
 
 };
 
-Entity.get = function(entityId) {
-    entityId = Entity._getPropertyId(entityId);
+Entity.get = function(entityOrId) {
+    var entityId = Entity._getPropertyId(entityOrId);
     if (Entity._entities[entityId] === undefined) {
         throw new EntityError(
             EntityErrorId.UnknownEntity,
@@ -302,10 +366,10 @@ Entity.get = function(entityId) {
  * @param parentEntityId {string|Entity|undefined|null} Id for parent existing entity
  * @returns {*}
  */
-Entity.create = function(newEntityId, parentEntityId) {
+Entity.create = function(newEntityId, parentEntityOrId) {
     newEntityId = Entity._getPropertyId(newEntityId);
-    if (parentEntityId === undefined) parentEntityId = null;
-    parentEntityId = Entity._getPropertyId(parentEntityId);
+    if (parentEntityOrId === undefined) parentEntityOrId = null;
+    var parentEntityId = Entity._getPropertyId(parentEntityOrId);
 
     if (parentEntityId !== null && Entity._entities[parentEntityId] === undefined) {
         Entity.create(parentEntityId);
@@ -342,12 +406,16 @@ Entity.create = function(newEntityId, parentEntityId) {
         }
         parent._children.push(entity);
 
+        if (parent.hasProperty(CoreId.CLONE_VALUES_FOR_CHILDREN)) {
+            parent._cloneValuesTo(entity);
+        }
+
         if (parent.hasCopiedProperties()) {
             parent.copyCopiedPropertiesToChildren();
         }
     }
 
-    return Entity._entities[newEntityId];
+    return entity;
 };
 
 Entity.defineImplementationForEntity = function(entityId, implementation) {
@@ -366,7 +434,7 @@ Entity._findImplementation = function(entityId) {
  * @param value
  * @private
  */
-Entity._checkValue = function(entity, propertyId, value) {
+Entity._proceedValue = function(entity, propertyId, value) {
     if (value === null) return null;
 
     var property = Entity.get(propertyId);
@@ -434,18 +502,18 @@ Entity._checkValue = function(entity, propertyId, value) {
     return value;
 };
 
-Entity._getPropertyId = function(property) {
-    if (property === null) return property;
-    if (typeof property === 'string' || property instanceof String) {
-        return property;
-    } else if (typeof property === 'object' || property instanceof Object) {
-        return property.id;
+Entity._getPropertyId = function(propertyOrId) {
+    if (propertyOrId === null) return propertyOrId;
+    if (typeof propertyOrId === 'string' || propertyOrId instanceof String) {
+        return propertyOrId;
+    } else if (typeof propertyOrId === 'object' || propertyOrId instanceof Object) {
+        return propertyOrId.id;
     }
-    return property;
+    return propertyOrId;
 };
 
-Entity.remove = function(entityOrEntityId) {
-    var entityId = Entity._getPropertyId(entityOrEntityId);
+Entity.remove = function(entityOrId) {
+    var entityId = Entity._getPropertyId(entityOrId);
 
     var entity = Entity._entities[entityId];
     parent = Entity.get(entity.parentId);

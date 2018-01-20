@@ -819,6 +819,21 @@ describe('Entity network', function() {
 
                 assert.isTrue(simpleValue.id !== clonedChild[simpleProperty.id].id);
             });
+
+            it('Unclonable value', function () {
+                var simpleProperty = Entity.create('simple property', CoreId.ENTITY);
+                var unclonableValue = Entity.create('unclonable value', simpleProperty);
+                unclonableValue.setValue(CoreId.UNCLONABLE_VALUE, true);
+
+                var clonedEntity = Entity.create('cloned entity', CoreId.ENTITY);
+                clonedEntity.setValue(CoreId.CLONE_VALUES_FOR_CHILDREN, true);
+                clonedEntity.setValue(CoreId.INHERIT_CLONED_VALUES, true);
+                clonedEntity.setValue(simpleProperty, unclonableValue);
+
+                var clonedChild = Entity.create('cloned child', clonedEntity);
+
+                assert.equal(unclonableValue.id, clonedChild[simpleProperty.id].id);
+            });
         });
     });
 });

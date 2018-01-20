@@ -30,6 +30,9 @@ EntityLoader.proceedDocumentsArray = function(dataObjectsArray) {
     }
 };
 
+// TODO: Создание сущности из объекта
+//var powerSupply = EntityLoader.create({power_has: 5});
+
 EntityLoader.proceedDocumentJustEntities = function(dataObject) {
     for (var entityId in dataObject) { // Make all entities first
         var entityOb = dataObject[entityId];

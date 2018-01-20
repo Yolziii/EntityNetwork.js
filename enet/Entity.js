@@ -186,6 +186,7 @@ Entity.prototype._cloneValue = function(value) {
     }
 
     if (!this.hasProperty(CoreId.INHERIT_CLONED_VALUES) || !this[CoreId.INHERIT_CLONED_VALUES]) return value;
+    if (value.hasProperty(CoreId.UNCLONABLE_VALUE) && value[CoreId.UNCLONABLE_VALUE]) return value;
 
     var newValue = Entity.create(value.id + "&" + (Entity._copied++), value);
     value._cloneValuesTo(newValue);
@@ -277,7 +278,7 @@ Entity._initValues = function() {
 
     Entity.create(CoreId.CLONE_VALUES_FOR_CHILDREN, CoreId.BOOLEAN);
     Entity.create(CoreId.INHERIT_CLONED_VALUES, CoreId.BOOLEAN);
-
+    Entity.create(CoreId.UNCLONABLE_VALUE, CoreId.BOOLEAN);
 };
 
 Entity.get = function(entityOrId) {
@@ -383,7 +384,7 @@ Entity._proceedValue = function(entity, propertyId, value) {
         }
     } else if (property.is(CoreId.STRING)) {
         if (!(typeof value === 'string' || value instanceof String)) {
-            if (value.is !== null && typeof  value.is === 'function' && value.is(CoreId.ENTITY)) {
+            if (value.is !== null && value.is === property.is) {
                 value = value.id;
             } else {
                 throw new EntityError(

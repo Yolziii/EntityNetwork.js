@@ -42,21 +42,7 @@ gulp.task('copyTestsHtml', ['copyTestsJs'], function() {
         .pipe(gulp.dest(destination));
 });
 
-gulp.task('copyTestsJson', ['copyTestsHtml'], function() {
-    return gulp.src(path.join(tests, 'test.EntityLoader.json'))
-        .pipe(replace(/^([.\W\w]*)$/g, 'var dataObject = $1;'))
-        .pipe(rename('test.EntityLoader.json.js'))
-        .pipe(gulp.dest(destination));
-});
-
-gulp.task('copyTestsJson2', ['copyTestsJson'], function() {
-    return gulp.src(path.join(tests, 'test.EntityLoader2.json'))
-        .pipe(replace(/^([.\W\w]*)$/g, 'var dataObject2 = $1;'))
-        .pipe(rename('test.EntityLoader2.json.js'))
-        .pipe(gulp.dest(destination));
-});
-
-gulp.task('copySources', ['copyTestsJson2'], function() {
+gulp.task('copySources', ['copyTestsHtml'], function() {
     return gulp.src(path.join(source, '/**/*.js'))
         .pipe(depend())
         .pipe(replace(/\/\/ #import modules[.\W\w]*\/\/ import modules#/gi, ''))

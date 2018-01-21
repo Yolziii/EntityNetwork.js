@@ -15,43 +15,63 @@ function EntityLoader() {
 EntityLoader._unnamed = 0;
 
 EntityLoader.proceedDocumentObject = function(dataObject) {
-    EntityLoader.proceedDocumentJustEntities(dataObject);
-    EntityLoader.proceedDocumentAllProperties(dataObject);
+    EntityLoader._proceedDocumentHeaders(dataObject);
+    EntityLoader._proceedDocumentFull(dataObject);
 };
 
 EntityLoader.proceedDocumentsArray = function(dataObjectsArray) {
     EntityLoader._unnamed = 0;
     var i;
     for (i = 0; i<dataObjectsArray.length; i++) {
-        EntityLoader.proceedDocumentJustEntities(dataObjectsArray[i]);
+        EntityLoader._proceedDocumentHeaders(dataObjectsArray[i]);
     }
     for (i = 0; i<dataObjectsArray.length; i++) {
-        EntityLoader.proceedDocumentAllProperties(dataObjectsArray[i]);
+        EntityLoader._proceedDocumentFull(dataObjectsArray[i]);
     }
 };
 
-// TODO: Создание сущности из объекта
-//var powerSupply = EntityLoader.create({power_has: 5});
+EntityLoader.createEntity = function(entityLiteral) {
+    var parentId = CoreId.ENTITY;
+    if (entityLiteral.is !== undefined) {
+        parentId = entityLiteral.is;
+    }
 
-EntityLoader.proceedDocumentJustEntities = function(dataObject) {
+    var id;
+    if (entityLiteral.id !== undefined) id = entityLiteral.id;
+    else id = parent + '#' + (EntityLoader._unnamed++);
+
+    var entity = EntityLoader._proceedHeader(id, parentId, entityLiteral);
+    EntityLoader._proceedProperties(entity, entityLiteral, false);
+
+    return entity;
+};
+
+EntityLoader._proceedDocumentHeaders = function(dataObject) {
     for (var entityId in dataObject) { // Make all entities first
         var entityOb = dataObject[entityId];
         var parentEntityId = entityOb.is === undefined ? 'entity' : entityOb.is;
         if (parentEntityId === null) parentEntityId = undefined;
-        var entity = Entity.contains(entityId)
-            ? Entity.get(entityId)
-            : Entity.create(entityId, parentEntityId);
+
+        EntityLoader._proceedHeader(entityId, parentEntityId, entityOb);
     }
 };
 
-EntityLoader.proceedDocumentAllProperties = function(dataObject) {
+EntityLoader._proceedHeader = function(entityId, parentEntityId, entityLiteral) {
+    var entity = Entity.contains(entityId)
+        ? Entity.get(entityId)
+        : Entity.create(entityId, parentEntityId);
+    EntityLoader._proceedProperties(entity, entityLiteral, true);
+    return entity;
+};
+
+EntityLoader._proceedDocumentFull = function(dataObject) {
     for (var entityId in dataObject) { // Then add properties to entities
         var entityOb = dataObject[entityId];
         //if (entityOb.constructor !== undefined) continue;
 
         var entity = Entity.get(entityId);
 
-        EntityLoader._proceedProperties(entity, entityOb);
+        EntityLoader._proceedProperties(entity, entityOb, false);
     }
 };
 
@@ -90,7 +110,7 @@ EntityLoader._proceedValue = function(entity, propertyId, value, isMultiple) {
 
         var subEntity = Entity.create(id, parent); // If it already exists, then just change the parent
 
-        EntityLoader._proceedProperties(subEntity, subEntityObj);
+        EntityLoader._proceedProperties(subEntity, subEntityObj, false);
 
         isMultiple
             ? entity.addValue(propertyId, subEntity)
@@ -98,10 +118,11 @@ EntityLoader._proceedValue = function(entity, propertyId, value, isMultiple) {
     }
 };
 
-EntityLoader._proceedProperties = function(entity, entityObject) {
+EntityLoader._proceedProperties = function(entity, entityObject, coreOnly) {
     for (var propertyId in entityObject) {
         if (propertyId === 'is') continue;
         if (propertyId === 'id') continue;
+        if (coreOnly && CoreId.HEADER_PROPERTIES.indexOf(propertyId) === -1) continue;
 
         var value = entityObject[propertyId];
         EntityLoader._proceedValue(entity, propertyId, value, false);
@@ -110,9 +131,6 @@ EntityLoader._proceedProperties = function(entity, entityObject) {
 
 // #export modules
 try {
-    var Entity = require('./Entity.js');
-    var CoreId = require('./CoreId.js');
-
     module.exports = EntityLoader;
 } catch(e) {}
 // export modules#

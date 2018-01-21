@@ -1,4 +1,5 @@
 const CoreId = {
+
     ENTITY: 'entity',
 
     DATA_TYPE: 'datatype', // Data types
@@ -24,8 +25,24 @@ const CoreId = {
 
     CLONE_VALUES_FOR_CHILDREN: 'clone_for_children', // All properties of entity, that mark by this tag will be copied for any child, and its children will clone their properties to their children too
     INHERIT_CLONED_VALUES: 'inherit_cloned_values',   // With this tag when entity is copied its values for children, entity-values will be cloning too by inherit original values
-    UNCLONABLE_VALUE: 'unclonable_value'   // Entities with this tag don't clone as values
+    UNCLONABLE_VALUE: 'unclonable_value',   // Entities with this tag don't clone as values
+
+    HEADER_PROPERTIES: []
 };
+
+const headers = [
+    CoreId.C_COMMANDED,
+    CoreId.MULTIPLE_VALUE,
+
+    CoreId.CLONE_VALUES_FOR_CHILDREN,
+    CoreId.INHERIT_CLONED_VALUES,
+    CoreId.UNCLONABLE_VALUE,
+
+];
+
+for (var i=0; i<headers.length; i++) {
+    CoreId.HEADER_PROPERTIES.push(headers[i]);
+}
 
 // #Node.js
 try {

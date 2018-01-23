@@ -196,4 +196,11 @@ describe('EntityLoader', function () {
         assert.equal(10, wolf.health);
         assert.isTrue(wolf.is(CardId.CARD));
     });
+
+    it('Empty array', function () {
+        var wolf = EntityLoader.createEntity({is: "card", id: "wolf", ability: []});
+
+        assert.isTrue(Array.isArray(wolf.ability));
+        assert.equal(0, wolf.ability.length);
+    });
 });

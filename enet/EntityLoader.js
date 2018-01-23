@@ -97,6 +97,7 @@ EntityLoader._proceedValue = function(entity, propertyId, value, isMultiple) {
 
     if (Array.isArray(value)) {
         entity.removeProperty(propertyId);
+        entity[propertyId] = [];
         for (var i=0; i<value.length; i++) {
             EntityLoader._proceedValue(entity, propertyId, value[i], true);
         }

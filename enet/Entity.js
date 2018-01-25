@@ -165,9 +165,9 @@ Entity.prototype.isEntityId = function(name) {
 Entity.prototype._cloneValuesTo = function(child) {
     for (var propertyId in this) {
         if (!this.isEntityId(propertyId)) continue;
-        var property = Entity.get(propertyId);
-        // TODO: Do not clone CoreId properties
+        if (CoreId.hasOwnProperty(propertyId)) continue; // Do not clone CoreId properties
 
+        var property = Entity.get(propertyId);
         if (property.isMultiple() && this[propertyId] != null) {
             for (var v=0; v<this[propertyId].length; v++) {
                 var value = this._cloneValue(this[propertyId][v]);

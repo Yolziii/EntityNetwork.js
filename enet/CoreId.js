@@ -36,8 +36,7 @@ const headers = [
 
     CoreId.CLONE_VALUES_FOR_CHILDREN,
     CoreId.INHERIT_CLONED_VALUES,
-    CoreId.UNCLONABLE_VALUE,
-
+    CoreId.UNCLONABLE_VALUE
 ];
 
 for (var i=0; i<headers.length; i++) {

@@ -38,7 +38,7 @@ EntityLoader.createEntity = function(entityLiteral) {
 
     var id;
     if (entityLiteral.id !== undefined) id = entityLiteral.id;
-    else id = parent + '#' + (EntityLoader._unnamed++);
+    else id = parentId + '#' + (EntityLoader._unnamed++);
 
     var entity = EntityLoader._proceedHeader(id, parentId, entityLiteral);
     EntityLoader._proceedProperties(entity, entityLiteral, false);

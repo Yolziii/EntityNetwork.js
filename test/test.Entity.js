@@ -783,6 +783,19 @@ describe('Entity', function() {
             assert.equal(1, clonedChild[simpleProperty.id]);
         });
 
+        it('Direct clone', function () {
+            var simpleProperty = Entity.create('simple property', CoreId.INT);
+
+            var originalEntity = Entity.create('cloned entity', CoreId.ENTITY);
+            originalEntity.setValue(simpleProperty, 1);
+
+            var clonedChild = originalEntity.clone();
+            originalEntity.setValue(simpleProperty, 2);
+
+            assert.equal(2, originalEntity[simpleProperty.id]);
+            assert.equal(1, clonedChild[simpleProperty.id]);
+        });
+
         it('Clone simple multiple properties', function () {
             var simpleProperty = Entity.create('simple property', CoreId.INT);
             simpleProperty.setValue(CoreId.MULTIPLE_VALUE, true);

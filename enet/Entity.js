@@ -194,6 +194,12 @@ Entity.prototype._cloneValue = function(value) {
     return newValue;
 };
 
+Entity.prototype.clone = function() {
+    var clone = Entity.create(this.id + "#" + (++Entity._unnamed), this.parentId);
+    this._cloneValuesTo(clone);
+    return clone;
+};
+
 //========================================================================================================================================================================
 // "Static" members
 //========================================================================================================================================================================

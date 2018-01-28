@@ -856,5 +856,20 @@ describe('Entity', function() {
 
             assert.equal(unclonableValue.id, clonedChild[simpleProperty.id].id);
         });
+
+        it('Unclonable property', function () {
+            var unclonableProperty = Entity.create('simple property', CoreId.ENTITY);
+            unclonableProperty.setValue(CoreId.UNCLONABLE_PROPERTY, true);
+            var simpleValue = Entity.create('simpleValue', unclonableProperty);
+
+            var clonedEntity = Entity.create('cloned entity', CoreId.ENTITY);
+            clonedEntity.setValue(CoreId.CLONE_VALUES_FOR_CHILDREN, true);
+            clonedEntity.setValue(CoreId.INHERIT_CLONED_VALUES, true);
+            clonedEntity.setValue(unclonableProperty, simpleValue);
+
+            var clonedChild = Entity.create('cloned child', clonedEntity);
+
+            assert.equal(simpleValue.id, clonedChild[unclonableProperty.id].id);
+        });
     });
 });

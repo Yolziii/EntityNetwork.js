@@ -24,8 +24,9 @@ const CoreId = {
     ACTIVE_PROPERTY: 'active_property',
 
     CLONE_VALUES_FOR_CHILDREN: 'clone_for_children', // All properties of entity, that mark by this tag will be copied for any child, and its children will clone their properties to their children too
-    INHERIT_CLONED_VALUES: 'inherit_cloned_values',   // With this tag when entity is copied its values for children, entity-values will be cloning too by inherit original values
-    UNCLONABLE_VALUE: 'unclonable_value',   // Entities with this tag don't clone as values
+    INHERIT_CLONED_VALUES: 'inherit_cloned_values',  // With this tag when entity is copied its values for children, entity-values will be cloning too by inherit original values
+    UNCLONABLE_VALUE: 'unclonable_value',            // Entities with this tag won't be cloned as values
+    UNCLONABLE_PROPERTY: 'unclonable_property',      // Values for properties with this tag won't be cloned
 
     HEADER_PROPERTIES: []
 };

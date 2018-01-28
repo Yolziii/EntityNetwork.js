@@ -168,6 +168,8 @@ Entity.prototype._cloneValuesTo = function(child) {
         if (CoreId.hasOwnProperty(propertyId)) continue; // Do not clone CoreId properties
 
         var property = Entity.get(propertyId);
+        if (property.hasProperty(CoreId.UNCLONABLE_PROPERTY) && property[CoreId.UNCLONABLE_PROPERTY]) return value;
+
         if (property.isMultiple() && this[propertyId] != null) {
             for (var v=0; v<this[propertyId].length; v++) {
                 var value = this._cloneValue(this[propertyId][v]);
@@ -285,6 +287,7 @@ Entity._initValues = function() {
     Entity.create(CoreId.CLONE_VALUES_FOR_CHILDREN, CoreId.BOOLEAN);
     Entity.create(CoreId.INHERIT_CLONED_VALUES, CoreId.BOOLEAN);
     Entity.create(CoreId.UNCLONABLE_VALUE, CoreId.BOOLEAN);
+    Entity.create(CoreId.UNCLONABLE_PROPERTY, CoreId.BOOLEAN);
 };
 
 Entity.get = function(entityOrId) {

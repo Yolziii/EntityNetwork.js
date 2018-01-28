@@ -407,6 +407,7 @@ Entity._proceedValue = function(entity, propertyId, value) {
                     'Value for "' + propertyId + '" must be "'+property.id+'" but was ' + valueEntity.id);
             }
         }
+        value = valueEntity;
     }
 
     if (property.checkValueAsProperty !== undefined) {

@@ -24,6 +24,7 @@ var builds = './builds';
 
 var package = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 var libraryFile = 'entity-network-'+package.version+'.js';
+var libraryFileMin = 'entity-network-'+package.version+'_min.js';
 
 gulp.task('removeWeb',  function() {
     return gulp.src(destination).pipe(clean());
@@ -42,20 +43,24 @@ gulp.task('copyTestsHtml', ['copyTestsJs'], function() {
         .pipe(gulp.dest(destination));
 });
 
-gulp.task('copySources', ['copyTestsHtml'], function() {
+gulp.task('concatSources', ['copyTestsHtml'], function() {
     return gulp.src(path.join(source, '/**/*.js'))
         .pipe(depend())
         .pipe(replace(/\/\/ #import modules[.\W\w]*\/\/ import modules#/gi, ''))
         .pipe(replace(/\/\/ #export modules[.\W\w]*\/\/ export modules#/gi, ''))
         .pipe(concat(libraryFile))
+        .pipe(gulp.dest(destination));
+});
+
+gulp.task('minifySources', ['concatSources'], function() {
+    return gulp.src(path.join(destination, libraryFile))
+        .pipe(concat(libraryFileMin))
         .pipe(jsmin())
         .pipe(gulp.dest(destination));
 });
 
-
-gulp.task('processHtml', ['copySources'], function() {
+gulp.task('processHtml', ['minifySources'], function() {
     return gulp.src(path.join(destination, '/test.html'))
-
         //.pipe(gulp.dest(path.join(destination, '/test.html')));
 });
 
@@ -63,7 +68,11 @@ gulp.task('copytoBuilds', ['processHtml'], function() {
     return gulp.src(path.join(destination, libraryFile))
         .pipe(gulp.dest(builds));
 });
+gulp.task('copytoBuildsMin', ['copytoBuilds'], function() {
+    return gulp.src(path.join(destination, libraryFileMin))
+        .pipe(gulp.dest(builds));
+});
 
-gulp.task('default', ['copytoBuilds'],  function() {
+gulp.task('default', ['copytoBuildsMin'],  function() {
 
 });

@@ -3,6 +3,7 @@
 docs/
 test/
 build/
+builds/
 *.swp
 .DS_Store
 *.bat
